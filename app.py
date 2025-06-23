@@ -1,18 +1,18 @@
 import streamlit as st
 import pandas as pd
 
+# Page title
 st.set_page_config(page_title="NRL Predictor", page_icon="🏉")
-
 st.title("🏉 NRL Match Winner Predictor")
 
-# ✅ Full list of NRL teams
+# Full team list
 teams = [
     'Broncos', 'Raiders', 'Bulldogs', 'Sharks', 'Titans', 'Sea Eagles', 'Storm',
     'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons',
     'Roosters', 'Warriors', 'Tigers', 'Dolphins'
 ]
 
-# Sample mini historical data
+# Sample match history
 data = {
     'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],
     'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],
@@ -20,7 +20,7 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# Dropdowns
+# Team selection
 home_team = st.selectbox("Select Home Team", teams)
 away_team = st.selectbox("Select Away Team", [team for team in teams if team != home_team])
 
@@ -38,7 +38,7 @@ def predict_winner(home, away):
     else:
         return "It's too close to call!"
 
-# Button
+# Predict button
 if st.button("Predict Winner"):
     result = predict_winner(home_team, away_team)
     st.success(f"Predicted Winner: **{result}**")
