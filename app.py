@@ -2,11 +2,8 @@ import streamlit as st
 import pandas as pd
 import requests
 
-# Your RapidAPI key
 API_KEY = "ceadd16dbdmshdd02736dc4a0p1729e8jsn93147778c9"
-
 API_URL = "https://therundown-therundown-v1.p.rapidapi.com/sports/odds"
-
 HEADERS = {
     "X-RapidAPI-Key": API_KEY,
     "X-RapidAPI-Host": "therundown-therundown-v1.p.rapidapi.com"
@@ -18,7 +15,7 @@ ALL_TEAMS = [
     'Warriors', 'Tigers', 'Dolphins'
 ]
 
-# Sample minimal history data as fallback
+# Minimal fallback history data
 data = {
     'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],
     'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],
@@ -47,4 +44,33 @@ def get_odds_for_match(home, away):
             if home in teams and away in teams:
                 for site in event.get("sites", []):
                     odds = site.get("odds", {}).get("h2h", [])
-                    if len(odds
+                    if len(odds) >= 2:
+                        if teams[0] == home:
+                            home_odds = odds[0]
+                            away_odds = odds[1]
+                        else:
+                            home_odds = odds[1]
+                            away_odds = odds[0]
+                        return home_odds, away_odds, site.get("site_nice", "Unknown")
+        return None, None, None
+    except Exception as e:
+        # Do NOT show raw error, just return None
+        return None, None, None
+
+def predict_winner_from_odds(home_odds, away_odds, home, away):
+    try:
+        home_odds = float(home_odds)
+        away_odds = float(away_odds)
+    except:
+        return None, ""
+
+    if home_odds < 0 and away_odds > 0:
+        reason = f"{home} is favored by the sportsbook with odds {home_odds}."
+        return home, reason
+    elif away_odds < 0 and home_odds > 0:
+        reason = f"{away} is favored by the sportsbook with odds {away_odds}."
+        return away, reason
+    else:
+        # Both positive or both negative, choose closer to zero (better odds)
+        if abs(home_odds) < abs(away_odds):
+            reason = f"{home} ha
