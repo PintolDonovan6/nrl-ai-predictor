@@ -1,14 +1,18 @@
 import streamlit as st
 import pandas as pd
 
-# ✅ Full list of 17 NRL teams
-all_teams = [
+st.set_page_config(page_title="NRL Predictor", page_icon="🏉")
+
+st.title("🏉 NRL Match Winner Predictor")
+
+# ✅ Full list of NRL teams
+teams = [
     'Broncos', 'Raiders', 'Bulldogs', 'Sharks', 'Titans', 'Sea Eagles', 'Storm',
-    'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons', 'Roosters',
-    'Warriors', 'Tigers', 'Dolphins'
+    'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons',
+    'Roosters', 'Warriors', 'Tigers', 'Dolphins'
 ]
 
-# ✅ Sample match history (you can expand later)
+# Sample mini historical data
 data = {
     'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],
     'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],
@@ -16,34 +20,25 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# 🌟 Streamlit App
-st.title("🏉 NRL Match Winner Predictor")
+# Dropdowns
+home_team = st.selectbox("Select Home Team", teams)
+away_team = st.selectbox("Select Away Team", [team for team in teams if team != home_team])
 
-home_team = st.selectbox("Select Home Team", all_teams)
-away_team = st.selectbox("Select Away Team", [team for team in all_teams if team != home_team])
-
+# Prediction logic
 def predict_winner(home, away):
-    # Check if there's match history
     home_wins = df[(df['Home Team'] == home) & (df['Winner'] == home)].shape[0]
     away_wins = df[(df['Away Team'] == away) & (df['Winner'] == away)].shape[0]
 
-    # Placeholder for expert analysis results (to be added later)
-    expert_tips = None  # You'll replace this with real scraped/extracted data
-    team_with_most_tips = home  # or away depending on what scraping finds
-    summary = "Most analysts favor " + team_with_most_tips  # Replace with actual summary
-
-    if expert_tips:  # when expert data is available
-        winner = team_with_most_tips
-        reason = summary
-        return f"🤖 Expert Prediction: **{winner}**\n🧠 Reason: {reason}"
-    elif home_wins > away_wins:
-        return f"{home} (based on stronger home history)"
+    if home_wins > away_wins:
+        return f"{home} (based on home history)"
     elif away_wins > home_wins:
-        return f"{away} (based on stronger away form)"
+        return f"{away} (based on away history)"
+    elif home_wins == 0 and away_wins == 0:
+        return "No data available. Too close to call!"
     else:
-        return "📉 No strong data available — matchup is balanced or not recorded."
+        return "It's too close to call!"
 
-# Button logic
+# Button
 if st.button("Predict Winner"):
     result = predict_winner(home_team, away_team)
-    st
+    st.success(f"Predicted Winner: **{result}**")
