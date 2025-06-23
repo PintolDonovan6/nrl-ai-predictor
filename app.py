@@ -1,104 +1,96 @@
 import streamlit as st
-import pandas as pd
 import requests
 
-# Your TheRundown API key
+# Your API key and host from RapidAPI
 API_KEY = "ceadd16dbdmshdd02736dc4a0p1729e8jsn93147778c9"
-API_URL = "https://therundown-therundown-v1.p.rapidapi.com/sports/0/events"
+API_HOST = "therundown-therundown-v1.p.rapidapi.com"
 
-# List of all 17 NRL teams
+headers = {
+    "X-RapidAPI-Key": API_KEY,
+    "X-RapidAPI-Host": API_HOST
+}
+
+def fetch_nrl_events():
+    url = f"https://{API_HOST}/sports/0/events"
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("events", [])
+    except Exception as e:
+        st.error(f"Error fetching events: {e}")
+        return []
+
+def find_event(events, home_team, away_team):
+    home_lower = home_team.lower()
+    away_lower = away_team.lower()
+    for event in events:
+        event_home = event.get("home_team", "").lower()
+        event_away = event.get("away_team", "").lower()
+        if home_lower in event_home and away_lower in event_away:
+            return event
+    return None
+
+def predict_winner_from_event(event, home_team, away_team):
+    odds_data = event.get("moneyline_periods", {}).get("period_full_game", [])
+    if not odds_data:
+        return None, "No odds data found for this event."
+    
+    odds = odds_data[0]
+    home_odds = odds.get("moneyline_home")
+    away_odds = odds.get("moneyline_away")
+
+    if home_odds is None or away_odds is None:
+        return None, "Incomplete odds data."
+
+    def odds_to_prob(moneyline):
+        if moneyline < 0:
+            return -moneyline / (-moneyline + 100)
+        else:
+            return 100 / (moneyline + 100)
+    
+    home_prob = odds_to_prob(home_odds)
+    away_prob = odds_to_prob(away_odds)
+
+    if home_prob > away_prob:
+        winner = home_team
+        reason = f"{home_team} is favored by moneyline odds ({home_odds} vs {away_odds})."
+    elif away_prob > home_prob:
+        winner = away_team
+        reason = f"{away_team} is favored by moneyline odds ({away_odds} vs {home_odds})."
+    else:
+        winner = home_team
+        reason = "Odds are equal, defaulting to home team."
+
+    return winner, reason
+
+st.title("🏉 NRL Match Winner Predictor with Live Odds")
+
 all_teams = [
     'Broncos', 'Raiders', 'Bulldogs', 'Sharks', 'Titans', 'Sea Eagles', 'Storm',
     'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons', 'Roosters',
     'Warriors', 'Tigers', 'Dolphins'
 ]
 
-# Sample historical data (expand this as you like)
-data = {
-    'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],
-    'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],
-    'Winner':    ['Storm', 'Panthers', 'Roosters', 'Storm', 'Panthers', 'Panthers']
-}
-df = pd.DataFrame(data)
-
-st.title("🏉 NRL Match Winner Predictor")
-
 home_team = st.selectbox("Select Home Team", all_teams)
 away_team = st.selectbox("Select Away Team", [team for team in all_teams if team != home_team])
 
-def fetch_live_odds(home, away):
-    headers = {
-        "X-RapidAPI-Key": API_KEY,
-        "X-RapidAPI-Host": "therundown-therundown-v1.p.rapidapi.com"
-    }
-    try:
-        response = requests.get(API_URL, headers=headers, timeout=10)
-        response.raise_for_status()
-        events = response.json().get('events', [])
-        
-        # Search for matching game
-        for event in events:
-            teams = event.get('teams', [])
-            if len(teams) < 2:
-                continue
-            team_names = [team.get('name') for team in teams]
-            # Check if our teams match the event teams (ignore order)
-            if set([home, away]) == set(team_names):
-                # Find moneyline odds
-                markets = event.get('lines', [])
-                for market in markets:
-                    # moneyline odds under 'moneyline_periods'
-                    moneyline_periods = market.get('moneyline_periods', {})
-                    full_game = moneyline_periods.get('period_full_game', [])
-                    if full_game:
-                        # Usually 2 entries: one for each team
-                        home_odds = None
-                        away_odds = None
-                        for odds_info in full_game:
-                            # event has team id? Or compare indexes? Let's try with 'team_id'
-                            # Here we just assume first is home, second away (simplification)
-                            # Or use 'line_id' or something if available
-                            # We'll just pick first odds as home odds, second as away odds
-                            # Sometimes data varies; fallback to safest guess
-                            home_odds = full_game[0].get('moneyline_home')
-                            away_odds = full_game[0].get('moneyline_away')
-                        if home_odds is not None and away_odds is not None:
-                            return home_odds, away_odds
-        return None, None
-    except Exception as e:
-        st.warning(f"Warning: Could not fetch live odds. {e}")
-        return None, None
-
-def predict_winner(home, away):
-    # Try live odds first
-    home_odds, away_odds = fetch_live_odds(home, away)
-    
-    if home_odds is not None and away_odds is not None:
-        # Lower odds means favored team (American odds: negative = favorite)
-        if home_odds < away_odds:
-            winner = home
-            reason = f"Live odds favor {home} ({home_odds} vs {away_odds})"
-        elif away_odds < home_odds:
-            winner = away
-            reason = f"Live odds favor {away} ({away_odds} vs {home_odds})"
-        else:
-            winner = home  # tie odds, fallback to home
-            reason = "Live odds tied; choosing home team as fallback"
-        return winner, reason
-    
-    # If no live odds, fallback to historical data
-    home_wins = df[(df['Home Team'] == home) & (df['Winner'] == home)].shape[0]
-    away_wins = df[(df['Away Team'] == away) & (df['Winner'] == away)].shape[0]
-
-    if home_wins > away_wins:
-        return home, f"Historical data shows better home team performance ({home_wins} wins)"
-    elif away_wins > home_wins:
-        return away, f"Historical data shows better away team performance ({away_wins} wins)"
-    else:
-        # No data or equal
-        return home, "No historical data or equal performance; defaulting to home team"
-
 if st.button("Predict Winner"):
-    winner, reason = predict_winner(home_team, away_team)
-    st.success(f"Predicted Winner: **{winner}**")
-    st.info(f"Reason: {reason}")
+    events = fetch_nrl_events()
+    if not events:
+        st.error("Could not fetch NRL events. Try again later.")
+    else:
+        event = find_event(events, home_team, away_team)
+        if not event:
+            st.warning("No matching event found for those teams. Defaulting to home team.")
+            st.success(f"Predicted Winner: {home_team}")
+            st.info("Reason: No event data found, so defaulting to home team.")
+        else:
+            winner, reason = predict_winner_from_event(event, home_team, away_team)
+            if winner:
+                st.success(f"Predicted Winner: {winner}")
+                st.info(f"Reason: {reason}")
+            else:
+                st.warning("No prediction available, defaulting to home team.")
+                st.success(f"Predicted Winner: {home_team}")
+                st.info("Reason: No odds data available.")
