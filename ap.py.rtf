@@ -1,0 +1,42 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 AppleColorEmoji;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs32 \cf0 \expnd0\expndtw0\kerning0
+import streamlit as st\
+import pandas as pd\
+\'a0\
+# Sample NRL match history\
+data = \{\
+\'a0\'a0\'a0 'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],\
+\'a0\'a0\'a0 'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],\
+\'a0\'a0\'a0 'Winner':\'a0\'a0\'a0 ['Storm', 'Panthers', 'Roosters', 'Storm', 'Panthers', 'Panthers']\
+\}\
+df = pd.DataFrame(data)\
+\'a0\
+st.title("
+\f1 \uc0\u55356 \u57289 
+\f0  NRL Match Winner Predictor")\
+\'a0\
+teams = sorted(list(set(df['Home Team']) | set(df['Away Team'])))\
+home_team = st.selectbox("Select Home Team", teams)\
+away_team = st.selectbox("Select Away Team", [team for team in teams if team != home_team])\
+\'a0\
+def predict_winner(home, away):\
+\'a0\'a0\'a0 home_wins = df[(df['Home Team'] == home) & (df['Winner'] == home)].shape[0]\
+\'a0\'a0\'a0 away_wins = df[(df['Away Team'] == away) & (df['Winner'] == away)].shape[0]\
+\'a0\'a0\'a0 if home_wins > away_wins:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0 return home\
+\'a0\'a0\'a0 elif away_wins > home_wins:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0 return away\
+\'a0\'a0\'a0 else:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0 return "It's too close to call!"\
+\'a0\
+if st.button("Predict Winner"):\
+\'a0\'a0\'a0 result = predict_winner(home_team, away_team)\
+\'a0\'a0\'a0 st.success(f"Predicted Winner: **\{result\}**")\
+}
