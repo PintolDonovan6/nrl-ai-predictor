@@ -61,6 +61,18 @@ def predict_winner(home, away):
 
 # 🔘 Predict Button
 if st.button("Predict Winner"):
-    winner, reason = predict_winner(home_team, away_team)
-    st.success(f"**Predicted Winner: {winner}**")
-    st.caption(reason)
+   def predict_winner(home, away):
+    home_wins = df[(df['Home Team'] == home) & (df['Winner'] == home)].shape[0]
+    away_wins = df[(df['Away Team'] == away) & (df['Winner'] == away)].shape[0]
+
+    if home_wins > away_wins:
+        return f"{home} (based on home history)"
+    elif away_wins > home_wins:
+        return f"{away} (based on away history)"
+    elif home_wins == away_wins and home_wins > 0:
+        # Tie in history, favor home team by default
+        return f"{home} (equal history, home team advantage)"
+    else:
+        # No history data, fallback to home team by default
+        return f"{home} (no history, fallback to home team)"
+
