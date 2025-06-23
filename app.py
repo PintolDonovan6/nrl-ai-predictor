@@ -2,19 +2,16 @@ import streamlit as st
 import pandas as pd
 import requests
 
+# Your API key here — replace with your actual key
 API_KEY = "ceadd16dbdmshdd02736dc4a0p1729e8jsn93147778c9"
-API_URL = "https://therundown-therundown-v1.p.rapidapi.com/sports/odds"
-HEADERS = {
-    "X-RapidAPI-Key": API_KEY,
-    "X-RapidAPI-Host": "therundown-therundown-v1.p.rapidapi.com"
-}
 
-ALL_TEAMS = [
+all_teams = [
     'Broncos', 'Raiders', 'Bulldogs', 'Sharks', 'Titans', 'Sea Eagles', 'Storm',
     'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons', 'Roosters',
     'Warriors', 'Tigers', 'Dolphins'
 ]
 
+# Sample historical data (you can expand this with real stats)
 data = {
     'Home Team': ['Storm', 'Panthers', 'Roosters', 'Storm', 'Broncos', 'Panthers'],
     'Away Team': ['Broncos', 'Storm', 'Panthers', 'Roosters', 'Panthers', 'Roosters'],
@@ -22,85 +19,89 @@ data = {
 }
 df = pd.DataFrame(data)
 
-st.title("🏉 NRL Match Winner Predictor (Live + History Fallback)")
+st.title("🏉 NRL Match Winner Predictor")
 
-home_team = st.selectbox("Select Home Team", ALL_TEAMS)
-away_team = st.selectbox("Select Away Team", [team for team in ALL_TEAMS if team != home_team])
+home_team = st.selectbox("Select Home Team", all_teams)
+away_team = st.selectbox("Select Away Team", [team for team in all_teams if team != home_team])
 
 def get_odds_for_match(home, away):
+    url = f"https://therundown-therundown-v1.p.rapidapi.com/sports/0/events"
+    headers = {
+        "X-RapidAPI-Key": API_KEY,
+        "X-RapidAPI-Host": "therundown-therundown-v1.p.rapidapi.com"
+    }
     try:
-        params = {
-            "sport": "nrl",
-            "region": "au",
-            "market": "h2h"
-        }
-        response = requests.get(API_URL, headers=HEADERS, params=params)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        data = response.json()
-
-        for event in data.get("events", []):
-            teams = [team['name'] for team in event.get("teams", [])]
+        events = response.json().get("events", [])
+        for event in events:
+            # Check if this event matches our teams
+            competitors = event.get("competitors", [])
+            teams = [c.get("name") for c in competitors if c.get("name")]
             if home in teams and away in teams:
-                for site in event.get("sites", []):
-                    odds = site.get("odds", {}).get("h2h", [])
-                    if len(odds) >= 2:
-                        if teams[0] == home:
-                            home_odds = odds[0]
-                            away_odds = odds[1]
-                        else:
-                            home_odds = odds[1]
-                            away_odds = odds[0]
-                        return home_odds, away_odds, site.get("site_nice", "Unknown")
+                lines = event.get("lines", [])
+                for line in lines:
+                    if line.get("line_type") == "moneyline":
+                        moneyline_periods = line.get("moneyline_periods", {})
+                        periods = moneyline_periods.get("period_full_game", [])
+                        if periods:
+                            period = periods[0]
+                            home_odds = period.get("moneyline_home")
+                            away_odds = period.get("moneyline_away")
+                            sportsbook = line.get("sportsbook", "Unknown")
+                            return home_odds, away_odds, sportsbook
         return None, None, None
-    except Exception:
+    except Exception as e:
         return None, None, None
 
 def predict_winner_from_odds(home_odds, away_odds, home, away):
-    try:
-        home_odds = float(home_odds)
-        away_odds = float(away_odds)
-    except:
-        return None, ""
+    # In American odds, negative number means favorite
+    if home_odds is None or away_odds is None:
+        return None, None
 
-    if home_odds < 0 and away_odds > 0:
-        reason = f"{home} is favored by the sportsbook with odds {home_odds}."
-        return home, reason
-    elif away_odds < 0 and home_odds > 0:
-        reason = f"{away} is favored by the sportsbook with odds {away_odds}."
-        return away, reason
+    if home_odds < away_odds:
+        winner = home
+        reason = f"{home} favored by odds ({home_odds} vs {away_odds})"
+    elif away_odds < home_odds:
+        winner = away
+        reason = f"{away} favored by odds ({away_odds} vs {home_odds})"
     else:
-        if abs(home_odds) < abs(away_odds):
-            reason = f"{home} has better odds ({home_odds}) compared to {away} ({away_odds})."
-            return home, reason
-        else:
-            reason = f"{away} has better odds ({away_odds}) compared to {home} ({home_odds})."
-            return away, reason
+        winner = None
+        reason = "Odds are equal, too close to call"
+    return winner, reason
 
 def predict_winner_from_history(home, away):
     home_wins = df[(df['Home Team'] == home) & (df['Winner'] == home)].shape[0]
     away_wins = df[(df['Away Team'] == away) & (df['Winner'] == away)].shape[0]
 
     if home_wins > away_wins:
-        reason = f"{home} has won more home games ({home_wins} wins) against {away}."
-        return home, reason
+        return home, f"Based on historical home wins: {home_wins} to {away_wins}"
     elif away_wins > home_wins:
-        reason = f"{away} has won more away games ({away_wins} wins) against {home}."
-        return away, reason
+        return away, f"Based on historical away wins: {away_wins} to {home_wins}"
+    elif home_wins == 0 and away_wins == 0:
+        return home, "No historical data, defaulting to home team"
     else:
-        return None, ""
+        return None, "Too close to call based on history"
 
 if st.button("Predict Winner"):
     home_odds, away_odds, sportsbook = get_odds_for_match(home_team, away_team)
 
     if home_odds is not None and away_odds is not None:
         winner, reason = predict_winner_from_odds(home_odds, away_odds, home_team, away_team)
-        st.success(f"Predicted Winner: **{winner}**")
-        st.info(f"Reason: {reason} (Data from sportsbook: {sportsbook})")
+        if winner:
+            st.success(f"Predicted Winner: **{winner}**")
+            st.info(f"Reason: {reason} (Data source: {sportsbook})")
+        else:
+            # fallback if odds equal
+            winner, reason = predict_winner_from_history(home_team, away_team)
+            st.success(f"Predicted Winner: **{winner}**")
+            st.info(f"Reason: {reason} (Fallback to history)")
     else:
         winner, reason = predict_winner_from_history(home_team, away_team)
         if winner:
             st.success(f"Predicted Winner: **{winner}**")
-            st.info(f"Reason: {reason} (Based on historical home/away wins)")
+            st.info(f"Reason: {reason} (Based on history)")
         else:
-            st.warning(f"No odds or history data available. Defaulting to home team: **{home_team}**")
-            st.info(f"Reason: No data found, so home team is d
+            st.warning(f"No data found, defaulting to home team: **{home_team}**")
+            st.info("Reason: No odds or history data available.")
+
