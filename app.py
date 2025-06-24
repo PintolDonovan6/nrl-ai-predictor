@@ -1,67 +1,87 @@
 import streamlit as st
-import random
 
-st.title("🏉 NRL Match Winner Predictor")
-st.markdown("#### 🔍 Simulated AI Analysis Based on History, Form, and Expert Views")
+# Page config
+st.set_page_config(
+    page_title="NRL Match Predictor | Samting Blo Ples",
+    page_icon="🏉",
+    layout="centered",
+)
 
-# All NRL teams
-teams = [
-    'Broncos', 'Raiders', 'Bulldogs', 'Sharks', 'Titans', 'Sea Eagles', 'Storm',
-    'Knights', 'Cowboys', 'Eels', 'Panthers', 'Rabbitohs', 'Dragons', 'Roosters',
-    'Warriors', 'Tigers', 'Dolphins'
-]
+# Custom CSS for PNG colors and style
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #000000;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .header {
+        background: linear-gradient(to right, #d80000, #ffcc00, #000);
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+    .header h1 {
+        color: white;
+        font-size: 3em;
+        margin: 0;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px #000000;
+    }
+    .btn-primary {
+        background-color: #d80000;
+        color: #fff;
+        font-weight: bold;
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 1.2em;
+        margin-top: 20px;
+    }
+    .btn-primary:hover {
+        background-color: #ffcc00;
+        color: #000;
+    }
+    .bird-container {
+        text-align: center;
+        margin-top: 40px;
+    }
+    .bird-caption {
+        color: #ffcc00;
+        font-style: italic;
+        margin-top: 10px;
+        font-size: 1.1em;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-home_team = st.selectbox("Select Home Team", teams)
-away_team = st.selectbox("Select Away Team", [t for t in teams if t != home_team])
+# Header
+st.markdown('<div class="header"><h1>NRL Match Predictor | Samting Blo Ples</h1></div>', unsafe_allow_html=True)
 
-# Sample historical results (can expand later)
-history = {
-    ('Storm', 'Broncos'): 'Storm',
-    ('Panthers', 'Storm'): 'Panthers',
-    ('Roosters', 'Panthers'): 'Roosters',
-    ('Broncos', 'Panthers'): 'Panthers',
-    ('Rabbitohs', 'Eels'): 'Rabbitohs'
-}
+st.write(
+    """
+    Welcome to the free NRL Match Predictor, powered by AI and the passion of PNG fans.
+    Try it now and see who’s likely to win!
+    """
+)
 
-# Simulated expert opinions
-expert_opinions = {
-    'Storm': 5,
-    'Panthers': 7,
-    'Broncos': 3,
-    'Roosters': 6,
-    'Rabbitohs': 4
-}
+# Predictor button
+if st.button("Try the Predictor Now"):
+    st.write("Launching Predictor... Traim Nau!")
 
-def get_prediction(home, away):
-    key = (home, away)
-    reverse_key = (away, home)
-
-    # Priority: history > expert votes > ladder form > random fallback
-    if key in history:
-        winner = history[key]
-        reason = f"{winner} has beaten {away if winner==home else home} multiple times in the past."
-    elif reverse_key in history:
-        winner = history[reverse_key]
-        reason = f"{winner} has dominated this match-up historically, even when playing away."
-    elif home in expert_opinions or away in expert_opinions:
-        home_votes = expert_opinions.get(home, 0)
-        away_votes = expert_opinions.get(away, 0)
-        if home_votes > away_votes:
-            winner = home
-            reason = f"Based on recent expert polls, {home} is getting more votes ({home_votes} vs {away_votes})."
-        elif away_votes > home_votes:
-            winner = away
-            reason = f"Most experts lean towards {away} this week with {away_votes} votes."
-        else:
-            winner = random.choice([home, away])
-            reason = "Experts are split, but we're tipping toward team form."
-    else:
-        winner = random.choice([home, away])
-        reason = f"No strong history or expert data. Choosing based on recent form and fan sentiment."
-
-    return winner, reason
-
-if st.button("Predict Winner"):
-    prediction, reason = get_prediction(home_team, away_team)
-    st.success(f"Predicted Winner: **{prediction}**")
-    st.info(f"Reason: {reason}")
+# Bird of Paradise bird image + caption
+st.markdown(
+    """
+    <div class="bird-container">
+        <img src="bird_of_paradise_bird.png" alt="Bird of Paradise Bird" width="200" style="border-radius: 12px;" />
+        <div class="bird-caption">PNG’s iconic Bird of Paradise — a symbol of strength and beauty</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
