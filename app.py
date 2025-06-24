@@ -71,3 +71,6 @@ if st.button("Predict Winner"):
     st.write(f"**Predicted winner:** {winner}")
     st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
     st.write(f"**Why?** Based on AI and PNG passion.")
+    
+    # Show image below predictions
+    st.image("logo1.png", use_column_width=True)
