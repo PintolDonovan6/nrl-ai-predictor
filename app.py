@@ -1,35 +1,26 @@
 import streamlit as st
-import requests
 
-# Replace these with your actual API key and CSE ID
-API_KEY = "YOUR_GOOGLE_API_KEY"
-CX_ID = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
+# Your existing imports and code here...
 
-# Add this helper text so users know how to set up CSE focus
-st.markdown("""
-**Note:**  
-This app uses Google Custom Search Engine (CSE) configured to search only trusted NRL and sports sites to deliver focused, relevant predictions.  
-If you want to customize which sites are included in the search, you can create or edit your CSE here:  
-[Google Custom Search Engine Setup](https://programmablesearchengine.google.com/about/)  
-""")
+# Add this near the top of your app.py file (just after imports and before main UI)
+st.markdown(
+    """
+    <div style="
+        border: 2px solid #d80000; 
+        background-color: #fff3cd; 
+        padding: 15px; 
+        border-radius: 8px; 
+        color: #856404;
+        font-family: Arial, sans-serif;
+        margin-bottom: 20px;">
+        <strong>Note:</strong> This app uses Google Custom Search Engine (CSE) configured to search only trusted NRL and sports sites to deliver focused, relevant predictions.<br>
+        If you want to customize which sites are included in the search, you can create or edit your CSE here: <a href="https://cse.google.com/cse/all" target="_blank">Google Custom Search Engine Setup</a>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-NRL_TEAMS = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
-    "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
-    "Wests Tigers", "Manly Sea Eagles", "Cronulla Sharks", "New Zealand Warriors",
-    "Gold Coast Titans", "St George Illawarra Dragons", "North Queensland Cowboys",
-    "Canterbury Bulldogs"
-]
+# Continue with your normal Streamlit app UI
+st.title("NRL Match Predictor | Samting Blo Ples")
 
-def google_search(query, num=5):
-    url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={CX_ID}&q={query}&num={num}"
-    try:
-        resp = requests.get(url)
-        resp.raise_for_status()
-        results = resp.json()
-        return results.get('items', [])
-    except Exception as e:
-        st.error(f"Error fetching search results: {e}")
-        return []
-
-# The rest of your prediction and UI code here ...
+# ... rest of your app code ...
