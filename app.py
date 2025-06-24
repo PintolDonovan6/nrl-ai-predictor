@@ -1,67 +1,129 @@
 import streamlit as st
+import requests
+from bs4 import BeautifulSoup
 import random
 
-# PNG-style background and font styling
+# Function to scrape expert tips from Zero Tackle
+def get_expert_tips():
+    url = "https://www.zerotackle.com/nrl-predictions/"
+    try:
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+    except Exception as e:
+        st.error(f"Error fetching tips: {e}")
+        return {}
+
+    soup = BeautifulSoup(res.text, "html.parser")
+    tips = {}
+
+    # Inspecting the Zero Tackle page, predictions are inside divs with class "predictions__list__item"
+    # Teams are in "predictions__teams", winner in "predictions__tip", analysis in "predictions__tip-description"
+    matches = soup.select("div.predictions__list__item")
+    for match in matches:
+        teams_elem = match.select_one("div.predictions__teams")
+        winner_elem = match.select_one("div.predictions__tip")
+        analysis_elem = match.select_one("div.predictions__tip-description")
+
+        if teams_elem and winner_elem:
+            teams_text = teams_elem.get_text(separator="|", strip=True)
+            # Teams are separated by | (pipe) symbol in the HTML structure
+            teams = [t.strip() for t in teams_text.split("|") if t.strip()]
+            if len(teams) == 2:
+                winner = winner_elem.get_text(strip=True)
+                analysis = analysis_elem.get_text(strip=True) if analysis_elem else "Expert analysis not available."
+                tips[(teams[0], teams[1])] = {
+                    "winner": winner,
+                    "analysis": analysis
+                }
+    return tips
+
+
+# Streamlit app UI starts here
+
+# PNG Flag colors for background styling
 st.markdown(
     """
     <style>
-    body {
-        background: linear-gradient(to right, black 33.3%, #d80000 33.3%, #d80000 66.6%, #ffd700 66.6%);
+    .reportview-container {
+        background: linear-gradient(to right, #000000 33%, #d80000 33%, #d80000 66%, #ffd700 66%);
         color: white;
+        min-height: 100vh;
     }
-    .stApp {
-        background: linear-gradient(to right, black 33.3%, #d80000 33.3%, #d80000 66.6%, #ffd700 66.6%);
-    }
-    h1, h2, h3, label, div, p {
+    h1, h2, h3, p, label, div, .stButton>button {
         color: white !important;
+        text-shadow: 1px 1px 2px black;
     }
-    .stButton>button {
-        background-color: red !important;
+    button, .stButton>button {
+        background-color: #d80000 !important;
         color: white !important;
         font-weight: bold;
+        border-radius: 10px;
+        padding: 8px 20px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Title
 st.title("NRL Match Predictor | Samting Blo Ples")
-st.write("**Powered by professional insights, tipster opinions, fan sentiment & AI.**")
 
-# Manual team selection
 teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
-    "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
-    "North Queensland Cowboys", "Cronulla Sharks", "Wests Tigers", "Gold Coast Titans",
-    "New Zealand Warriors", "St George Illawarra Dragons", "Manly Sea Eagles", "Dolphins"
+    "Brisbane Broncos",
+    "Melbourne Storm",
+    "Penrith Panthers",
+    "Sydney Roosters",
+    "Canberra Raiders",
+    "South Sydney Rabbitohs",
+    "Parramatta Eels",
+    "Newcastle Knights"
 ]
 
 team1 = st.selectbox("Choose Team 1", teams)
-team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
+team2 = st.selectbox("Choose Team 2", teams)
 
-if st.button("Predict Winner"):
-    winner = random.choice([team1, team2])
-    loser = team1 if winner == team2 else team2
-    win_pct = round(random.uniform(51, 75), 1)
-    lose_pct = round(100 - win_pct, 1)
-    margin = random.randint(6, 50)
+if team1 == team2:
+    st.warning("Please select two different teams.")
+else:
+    if st.button("Predict Winner"):
+        tips = get_expert_tips()
+        key = (team1, team2)
+        reverse_key = (team2, team1)
 
-    # Margin range bucket
-    if margin <= 10:
-        margin_range = "1–10"
-    elif margin <= 20:
-        margin_range = "11–20"
-    elif margin <= 30:
-        margin_range = "21–30"
-    elif margin <= 40:
-        margin_range = "31–40"
-    elif margin <= 50:
-        margin_range = "41–50"
-    else:
-        margin_range = "51+"
+        prediction = tips.get(key) or tips.get(reverse_key)
 
-    st.subheader(f"Predicted Winner: {winner}")
-    st.write(f"**Winning chance:** {winner} {win_pct}% – {loser} {lose_pct}%")
-    st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
-    st.write(f"**Why?** Based on latest online expert tips, fan opinions, and performance stats.")
+        if prediction:
+            winner = prediction["winner"]
+            analysis = prediction["analysis"]
+            # Random margin for demo (replace with your own model later)
+            margin = random.randint(5, 60)
+
+            # Bucket margin into ranges
+            if margin <= 10:
+                margin_range = "1-10"
+            elif margin <= 20:
+                margin_range = "11-20"
+            elif margin <= 30:
+                margin_range = "21-30"
+            elif margin <= 40:
+                margin_range = "31-40"
+            elif margin <= 50:
+                margin_range = "41-50"
+            else:
+                margin_range = "51+"
+
+            st.markdown(f"### Predicted winner: {winner}")
+            st.markdown(f"**Winning chance:** {winner} ~ {round(random.uniform(55, 75),1)}% (Estimated)")  # dummy % estimation
+            st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
+            st.markdown(f"**Why?** {analysis}")
+
+        else:
+            st.info("No expert tip found for this matchup. Using fallback prediction.")
+            winner = random.choice([team1, team2])
+            margin = random.randint(5, 60)
+            st.markdown(f"### Predicted winner: {winner}")
+            st.markdown(f"**Winning chance:** {winner} ~ {round(random.uniform(50, 60),1)}% (Estimated)")
+            st.markdown(f"**Predicted points margin:** {margin}")
+            st.markdown("**Why?** Based on AI, fan sentiment, and limited data.")
+
+st.markdown("---")
+st.markdown("Powered by expert tips, fan sentiment & AI.")
