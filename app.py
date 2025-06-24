@@ -1,119 +1,91 @@
 import streamlit as st
-from io import StringIO
+from PIL import Image
+import pytesseract
 import requests
 from bs4 import BeautifulSoup
 import random
 
-st.set_page_config(page_title="NRL Predictor with Pacific Racing Guide", layout="centered")
+# Page setup
+st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# --- Inject PNG colors background & styling ---
-st.markdown(
-    """
+# PNG-inspired styling
+st.markdown("""
     <style>
-    /* PNG Flag style vertical stripes background */
-    .reportview-container, .main {
-        background: linear-gradient(to right, 
-            #000000 33.33%, 
-            #d80000 33.33%, 
-            #d80000 66.66%, 
-            #ffd700 66.66%);
-        min-height: 100vh;
-        color: black;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    .stApp {
+        background: linear-gradient(to right, #000000 33.3%, #d80000 33.3%, #d80000 66.6%, #ffd700 66.6%);
+        font-family: 'Segoe UI', sans-serif;
     }
-    /* Text colors for readability */
-    h1, h2, h3, p, label, div, .stButton button {
+    h1, h2, h3, label, p, div {
         color: black !important;
-        text-shadow: 1px 1px 2px #fff;
-        font-weight: 600;
+        font-weight: bold;
+        text-shadow: 1px 1px 1px white;
     }
-    /* Button styling */
-    .stButton>button {
+    .stButton > button {
         background-color: #d80000 !important;
         color: white !important;
-        font-weight: bold !important;
-        border-radius: 8px !important;
-        padding: 8px 20px !important;
+        font-weight: bold;
+        border-radius: 6px;
     }
     </style>
-    """,
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
-# --- Function to parse uploaded guide ---
-def parse_pacific_guide(uploaded_file):
+st.title("NRL Match Predictor | Samting Blo Ples")
+st.markdown("Upload your **Pacific Racing Guide image**, choose teams, and get predictions powered by AI, tipsters, and NRL fan energy!")
+
+# Upload guide image
+uploaded = st.file_uploader("Upload Pacific Racing Guide (Image file)", type=["png", "jpg", "jpeg"])
+
+# Extract text from uploaded image
+def extract_text(image_file):
     try:
-        content = uploaded_file.read()
-        try:
-            # Try decode as utf-8 text file
-            text = content.decode("utf-8")
-        except:
-            # If PDF, fallback just show placeholder text (for real PDF parsing install pdfminer etc)
-            text = "Pacific Racing guide content loaded (PDF parsing not implemented)."
-        return text
-    except Exception as e:
-        st.error(f"Failed to read uploaded guide: {e}")
+        image = Image.open(image_file)
+        return pytesseract.image_to_string(image)
+    except:
         return ""
 
-# --- Scrape latest NRL news headlines ---
-def scrape_nrl_news():
-    url = "https://www.nrl.com/news/"
+guide_text = extract_text(uploaded) if uploaded else ""
+
+# Get latest NRL headlines
+def fetch_nrl_news():
     try:
-        res = requests.get(url, timeout=10)
-        if res.status_code != 200:
-            return ""
+        res = requests.get("https://www.nrl.com/news/", timeout=10)
         soup = BeautifulSoup(res.text, "html.parser")
-        headlines = soup.select("h3.headline, h2.headline")
-        texts = [h.get_text(strip=True) for h in headlines[:5]]
-        return " ".join(texts)
-    except Exception:
+        headlines = soup.find_all("h3")
+        return " ".join([h.get_text(strip=True) for h in headlines[:5]])
+    except:
         return ""
 
-# --- Prediction logic based on mentions ---
-def combined_prediction(team1, team2, guide_text, nrl_news):
-    score1 = guide_text.lower().count(team1.lower()) + nrl_news.lower().count(team1.lower())
-    score2 = guide_text.lower().count(team2.lower()) + nrl_news.lower().count(team2.lower())
-
-    if score1 == score2:
+# Prediction logic
+def predict(team1, team2, guide, news):
+    c1 = guide.lower().count(team1.lower()) + news.lower().count(team1.lower())
+    c2 = guide.lower().count(team2.lower()) + news.lower().count(team2.lower())
+    if c1 == c2:
         winner = random.choice([team1, team2])
-        reason = "Balanced insights from guide and NRL news. Close match expected."
-    elif score1 > score2:
+        reason = "Very close matchup — evenly mentioned across guide and news."
+    elif c1 > c2:
         winner = team1
-        reason = f"More positive mentions for {team1} found in guide and NRL news."
+        reason = f"{team1} is favored in the guide and recent news."
     else:
         winner = team2
-        reason = f"More positive mentions for {team2} found in guide and NRL news."
+        reason = f"{team2} appears stronger based on mentions in the sources."
 
-    margin_points = random.randint(1, 60)
-    if margin_points <= 10:
+    margin = random.randint(1, 60)
+    if margin <= 10:
         margin_range = "1-10"
-    elif margin_points <= 20:
+    elif margin <= 20:
         margin_range = "11-20"
-    elif margin_points <= 30:
+    elif margin <= 30:
         margin_range = "21-30"
-    elif margin_points <= 40:
+    elif margin <= 40:
         margin_range = "31-40"
-    elif margin_points <= 50:
+    elif margin <= 50:
         margin_range = "41-50"
     else:
         margin_range = "51+"
+    
+    return winner, margin, margin_range, reason
 
-    return winner, margin_points, margin_range, reason
-
-# --- App UI ---
-st.title("NRL Match Predictor | Samting Blo Ples")
-st.markdown(
-    "Upload your **Pacific Racing Guide** and select teams below. The app will also gather latest NRL news to help predict the winner."
-)
-
-uploaded_file = st.file_uploader("Upload Pacific Racing Guide (txt or PDF)", type=["txt", "pdf"])
-
-guide_text = ""
-if uploaded_file:
-    guide_text = parse_pacific_guide(uploaded_file)
-    if guide_text:
-        st.success("Pacific Racing Guide uploaded!")
-
+# Team selection
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights"
@@ -123,12 +95,12 @@ team1 = st.selectbox("Choose Team 1", teams)
 team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
 
 if st.button("Predict Winner"):
-    if not uploaded_file:
-        st.warning("Please upload the Pacific Racing Guide to help prediction.")
+    if not guide_text:
+        st.warning("Please upload a Pacific Racing image first.")
     else:
-        nrl_news = scrape_nrl_news()
-        winner, margin, margin_range, reason = combined_prediction(team1, team2, guide_text, nrl_news)
+        news = fetch_nrl_news()
+        winner, margin, margin_range, reason = predict(team1, team2, guide_text, news)
 
-        st.markdown(f"### Predicted winner: {winner}")
-        st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
-        st.markdown(f"**Why?** {reason}")
+        st.subheader(f"Predicted winner: {winner}")
+        st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
+        st.write(f"**Why?** {reason}")
