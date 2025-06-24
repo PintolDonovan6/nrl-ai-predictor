@@ -1,4 +1,26 @@
 import streamlit as st
+
+# Add this code right after the imports and before any other Streamlit commands
+
+st.markdown(
+    """
+    <style>
+    /* Main page background with PNG flag colors */
+    .css-18e3th9 {
+        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%);
+        min-height: 100vh;
+    }
+    /* Text color and shadow for readability */
+    body, h1, h2, h3, p, div {
+        color: #ffd700 !important;
+        text-shadow: 1px 1px 2px black;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+import streamlit as st
 import random
 
 NRL_TEAMS = [
