@@ -1,27 +1,40 @@
 import streamlit as st
 import random
 
+# Set page config with dark theme background color
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-st.title("NRL Match Predictor | Samting Blo Ples")
-st.write("Powered by AI, PNG passion, and Pacific Racing insights.")
+# Add custom CSS for background and text colors
+st.markdown(
+    """
+    <style>
+    .reportview-container {
+        background-color: #000000;  /* black background */
+        color: #FFD700;             /* gold/yellow text */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .css-1d391kg {  /* button class in Streamlit */
+        background-color: #d80000 !important; /* PNG red */
+        color: white !important;
+        font-weight: bold !important;
+        border-radius: 10px !important;
+        padding: 10px 24px !important;
+    }
+    .stSelectbox > div > div > select {
+        background-color: #000;
+        color: #FFD700;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-st.header("Choose Prediction Method:")
-st.write("Pacific Racing Guide")
-st.write("Fetching latest Pacific Racing tips...")
-
-# Simulated failure to fetch tips fallback
-st.write("Could not fetch tips. Using random prediction fallback.\n")
-
-# Sample upcoming matches
-upcoming_matches = [
-    ("Brisbane Broncos", "Melbourne Storm"),
-    ("Penrith Panthers", "Sydney Roosters"),
-    ("South Sydney Rabbitohs", "Canberra Raiders"),
-    ("Parramatta Eels", "Newcastle Knights"),
+teams = [
+    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
+    "South Sydney Rabbitohs", "Canberra Raiders", "Parramatta Eels", "Newcastle Knights"
 ]
 
-# Reason summaries
 reason_map = {
     "Brisbane Broncos": "Brisbane Broncos have strong recent form.",
     "Melbourne Storm": "Melbourne Storm are known for strong defense.",
@@ -33,22 +46,21 @@ reason_map = {
     "Newcastle Knights": "Newcastle Knights are rebuilding this season.",
 }
 
-def predict_random(team1, team2):
+def predict_winner(team1, team2):
     chance1 = round(random.uniform(40, 60), 1)
     chance2 = round(100 - chance1, 1)
     winner = team1 if chance1 > chance2 else team2
     margin = random.randint(2, 20)
     return winner, chance1, chance2, margin
 
-st.header("Upcoming Matches & Predictions:")
+st.title("NRL Match Predictor | Samting Blo Ples")
 
-for team1, team2 in upcoming_matches:
-    winner, chance1, chance2, margin = predict_random(team1, team2)
-    st.subheader(f"{team1} vs {team2}")
+team1 = st.selectbox("Choose Team 1", teams)
+team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
+
+if st.button("Predict Winner"):
+    winner, chance1, chance2, margin = predict_winner(team1, team2)
     st.write(f"Predicted winner: **{winner}**")
     st.write(f"Winning chance: {team1} {chance1}% - {team2} {chance2}%")
     st.write(f"Predicted points margin: {margin}")
-    st.write(f"Why? {reason_map.get(winner, 'Based on recent analysis and form.')}\n")
-
-st.markdown("---")
-st.write("Note: Pacific Racing scraping depends on public access to Facebook posts. If unavailable, predictions fallback to random.")
+    st.write(f"Why? {reason_map.get(winner, 'Based on recent analysis and form.')}")
