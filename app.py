@@ -8,17 +8,17 @@ import random
 # Page setup
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# PNG-inspired styling
+# PNG-inspired background with white fonts
 st.markdown("""
     <style>
     .stApp {
         background: linear-gradient(to right, #000000 33.3%, #d80000 33.3%, #d80000 66.6%, #ffd700 66.6%);
         font-family: 'Segoe UI', sans-serif;
     }
-    h1, h2, h3, label, p, div {
-        color: black !important;
+    h1, h2, h3, label, p, div, span, .css-10trblm {
+        color: white !important;
         font-weight: bold;
-        text-shadow: 1px 1px 1px white;
+        text-shadow: 1px 1px 2px black;
     }
     .stButton > button {
         background-color: #d80000 !important;
