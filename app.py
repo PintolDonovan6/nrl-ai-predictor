@@ -45,42 +45,43 @@ def predict_winner(home, away):
     reason = f"{winner} have shown strong recent form and better stats."
     return winner, loser, win_chance_winner, win_chance_loser, total_points, margin_range, reason
 
-# Page config
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", page_icon="🏉")
 
-# PNG-themed gradient background and styling
+# PNG Flag style vertical tri-color background
 st.markdown(
     """
     <style>
     body {
-        background: linear-gradient(135deg, #008000 0%, #ffd700 50%, #d80000 100%);
-        color: white;
+        margin: 0;
+        height: 100vh;
+        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%);
+        color: #ffd700;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: 20px;
+        padding: 30px;
     }
     h1, h2, h3 {
-        color: #ffffff;
-        text-shadow: 1px 1px 2px black;
+        color: #ffd700;
+        text-shadow: 2px 2px 4px #000000;
     }
     .stButton>button {
-        background-color: #d80000;
-        color: white;
-        border-radius: 8px;
-        padding: 10px 20px;
+        background-color: #ffd700;
+        color: #d80000;
+        border-radius: 10px;
         font-weight: bold;
-        font-size: 16px;
+        font-size: 18px;
+        padding: 12px 28px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         transition: background-color 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #a30000;
+        background-color: #ffec6e;
     }
     .stSelectbox>div>div>select {
-        background-color: white;
-        color: black;
+        background-color: #000000 !important;
+        color: #ffd700 !important;
         font-weight: bold;
-        border-radius: 5px;
-        padding: 5px;
+        border-radius: 6px;
+        padding: 6px;
     }
     </style>
     """,
