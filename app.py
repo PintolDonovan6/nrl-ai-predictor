@@ -1,57 +1,53 @@
 import streamlit as st
+import requests
 import random
 
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# Inject PNG colors CSS
-st.markdown(
-    """
-    <style>
-    body, .css-18e3th9, .main {
-        background-color: #000000 !important;  /* Black */
-        color: #FFD700 !important;             /* Gold/yellow */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    div.stButton > button {
-        background-color: #d80000 !important;  /* PNG Red */
-        color: white !important;
-        font-weight: bold !important;
-        border-radius: 10px !important;
-        padding: 10px 24px !important;
-        font-size: 1.1em !important;
-    }
-    div[role="listbox"] > div {
-        color: #FFD700 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
-    "South Sydney Rabbitohs", "Canberra Raiders", "Parramatta Eels", "Newcastle Knights"
-]
-
-reason_map = {
-    "Brisbane Broncos": "Brisbane Broncos have strong recent form.",
-    "Melbourne Storm": "Melbourne Storm are known for strong defense.",
-    "Penrith Panthers": "Penrith Panthers are consistent contenders.",
-    "Sydney Roosters": "Sydney Roosters have strong recent form.",
-    "South Sydney Rabbitohs": "South Sydney Rabbitohs have key injuries to manage.",
-    "Canberra Raiders": "Canberra Raiders have key players fit and ready.",
-    "Parramatta Eels": "Betting odds favor Parramatta Eels.",
-    "Newcastle Knights": "Newcastle Knights are rebuilding this season.",
+# PNG colors style
+st.markdown("""
+<style>
+body, .css-18e3th9, .main {
+  background-color: #000000 !important; /* Black */
+  color: #FFD700 !important;            /* Gold */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+div.stButton > button {
+  background-color: #d80000 !important; /* PNG Red */
+  color: white !important;
+  font-weight: bold !important;
+  border-radius: 10px !important;
+  padding: 10px 24px !important;
+  font-size: 1.1em !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# Margin brackets as ranges (difference in points)
+def fetch_upcoming_nrl_fixtures():
+    url = "https://www.thesportsdb.com/api/v1/json/1/eventsnextleague.php?id=4387"
+    try:
+        response = requests.get(url)
+        data = response.json()
+        events = data.get('events', [])
+        fixtures = []
+        for e in events:
+            home = e['strHomeTeam']
+            away = e['strAwayTeam']
+            date = e['dateEvent']
+            fixtures.append({'home': home, 'away': away, 'date': date})
+        return fixtures
+    except Exception as ex:
+        st.error(f"Error fetching fixtures: {ex}")
+        return []
+
+# Margin brackets for points difference
 margin_brackets = [
     (1, 10),
     (11, 20),
     (21, 30),
     (31, 40),
     (41, 50),
-    (51, 100),  # 51+
+    (51, 100),
 ]
 
 def categorize_margin(margin):
@@ -63,23 +59,46 @@ def categorize_margin(margin):
                 return f"{low}-{high}"
     return "Unknown"
 
-def predict_winner(team1, team2):
-    chance1 = round(random.uniform(40, 60), 1)
-    chance2 = round(100 - chance1, 1)
-    winner = team1 if chance1 > chance2 else team2
-    # Random margin difference (points margin)
+def simple_prediction(home, away):
+    # Simple random winning chances around 50%
+    home_chance = round(random.uniform(45, 60), 1)
+    away_chance = round(100 - home_chance, 1)
+    winner = home if home_chance > away_chance else away
     margin = random.randint(1, 60)
     margin_range = categorize_margin(margin)
-    return winner, chance1, chance2, margin, margin_range
+    reason_map = {
+        home: f"{home} have strong recent form.",
+        away: f"{away} have key players fit and ready."
+    }
+    return winner, home_chance, away_chance, margin, margin_range, reason_map[winner]
 
 st.title("NRL Match Predictor | Samting Blo Ples")
 
-team1 = st.selectbox("Choose Team 1", teams)
-team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
+fixtures = fetch_upcoming_nrl_fixtures()
+
+if not fixtures:
+    st.warning("No upcoming fixtures found. Please try again later.")
+    st.stop()
+
+# Show next fixtures for user to pick match
+match_options = [f"{f['home']} vs {f['away']} on {f['date']}" for f in fixtures]
+selected_match = st.selectbox("Select a match to predict", match_options)
+
+selected_index = match_options.index(selected_match)
+selected_fixture = fixtures[selected_index]
+
+home_team = selected_fixture['home']
+away_team = selected_fixture['away']
+
+st.write(f"### Predicting: {home_team} vs {away_team}")
 
 if st.button("Predict Winner"):
-    winner, chance1, chance2, margin, margin_range = predict_winner(team1, team2)
-    st.write(f"Predicted winner: **{winner}**")
-    st.write(f"Winning chance: {team1} {chance1}% - {team2} {chance2}%")
-    st.write(f"Predicted points margin: {margin} (Range: {margin_range})")
-    st.write(f"Why? {reason_map.get(winner, 'Based on recent analysis and form.')}")
+    winner, home_chance, away_chance, margin, margin_range, reason = simple_prediction(home_team, away_team)
+
+    st.markdown(f"**Predicted winner:** {winner}")
+    st.markdown(f"**Winning chance:** {home_team} {home_chance}% - {away_team} {away_chance}%")
+    st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
+    st.markdown(f"**Why?** {reason}")
+
+st.markdown("---")
+st.markdown("⚠️ *Note: This is a demo using live fixtures but predictions are randomly generated and not from real analysis.*")
