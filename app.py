@@ -1,76 +1,67 @@
 import streamlit as st
 
+# Inject PNG colors and fonts CSS
 st.markdown(
     """
     <style>
-    /* Background & text */
-    .main {
+    body, .main {
         background-color: #000000;
         color: #ffffff;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: 20px 40px;
+        padding: 30px 40px;
     }
-    /* Headers */
     h1 {
-        color: #d80000; /* PNG red */
-        text-shadow: 1px 1px 4px #ffcc00; /* PNG yellow glow */
+        color: #d80000;
+        text-shadow: 2px 2px 6px #ffcc00;
         font-weight: 900;
         font-size: 3rem;
     }
     h2 {
-        color: #ffcc00; /* PNG yellow */
+        color: #ffcc00;
         font-weight: 700;
         font-size: 2.4rem;
+        margin-top: 20px;
     }
-    /* Paragraph text */
     p {
+        font-size: 1.2rem;
         color: #eee;
-        font-size: 1.1rem;
-        line-height: 1.5;
+        line-height: 1.6;
     }
-    /* Buttons */
     div.stButton > button:first-child {
         background-color: #d80000;
         color: white;
-        border-radius: 10px;
-        padding: 12px 30px;
         font-weight: bold;
+        border-radius: 12px;
+        padding: 16px 40px;
         font-size: 1.2rem;
-        box-shadow: 0 0 15px #d80000;
-        cursor: pointer;
+        box-shadow: 0 0 20px #d80000;
         transition: background-color 0.3s ease;
+        cursor: pointer;
+        margin-top: 25px;
     }
     div.stButton > button:first-child:hover {
         background-color: #ffcc00;
         color: black;
-        box-shadow: 0 0 20px #ffcc00;
+        box-shadow: 0 0 25px #ffcc00;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="main">', unsafe_allow_html=True)
-
+# App content starts here
 st.title("NRL Match Predictor | Samting Blo Ples")
 
-st.markdown(
+st.write(
     """
-    <p>Powered by AI and PNG fan energy!</p>
-    """,
-    unsafe_allow_html=True,
+    Powered by AI and the passion of Papua New Guinea’s rugby league fans.  
+    Predict match winners based on stats, expert views, and fan sentiment.
+    """
 )
 
-st.header("NRL Match Winner Predictor")
-
-st.markdown(
-    """
-    <p>This predictor uses data from past matches, expert opinions, and passionate PNG fan sentiment.</p>
-    """,
-    unsafe_allow_html=True,
-)
+st.header("Try the Predictor")
 
 if st.button("Try the Predictor Now"):
-    st.markdown("<p><strong>Traim Nau!</strong></p>", unsafe_allow_html=True)
+    st.success("Traim Nau! Predictor is working!")
 
-st.markdown("</div>", unsafe_allow_html=True)
+# You can add your predictor logic here
