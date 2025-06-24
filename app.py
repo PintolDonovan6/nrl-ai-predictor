@@ -1,3 +1,12 @@
+<!-- Title and Meta -->
+<title>NRL Predictor | Mango Mine Case</title>
+<meta name="description" content="Predict NRL match outcomes with AI, expert analysis, and PNG passion. Try Mango Mine Case's NRL Predictor now.">
+<meta name="keywords" content="NRL, AI Prediction, Rugby League, Mango Mine Case, PNG, Match Tips, Sports Predictor">
+<meta property="og:title" content="NRL Predictor | Mango Mine Case" />
+<meta property="og:description" content="Powered by expert opinions, AI, and fan sentiment. Choose your teams and get NRL predictions now." />
+<meta property="og:url" content="https://nrl-ai-predictorgit-r9mpbscpqjawefnqcrpvje.streamlit.app/" />
+<meta property="og:type" content="website" />
+
 import streamlit as st
 from PIL import Image
 import random
