@@ -1,33 +1,34 @@
 import streamlit as st
 import random
 
-# Set page config with dark theme background color
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# Add custom CSS for background and text colors
+# Inject global CSS
 st.markdown(
     """
     <style>
-    .reportview-container {
-        background-color: #000000;  /* black background */
-        color: #FFD700;             /* gold/yellow text */
+    /* Background and text color */
+    body, .css-18e3th9, .main {
+        background-color: #000000 !important;  /* Black */
+        color: #FFD700 !important;             /* Gold/yellow */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    .css-1d391kg {  /* button class in Streamlit */
-        background-color: #d80000 !important; /* PNG red */
+    /* Button style */
+    div.stButton > button {
+        background-color: #d80000 !important;  /* PNG Red */
         color: white !important;
         font-weight: bold !important;
         border-radius: 10px !important;
         padding: 10px 24px !important;
+        font-size: 1.1em !important;
     }
-    .stSelectbox > div > div > select {
-        background-color: #000;
-        color: #FFD700;
-        font-weight: bold;
+    /* Selectbox text color */
+    div[role="listbox"] > div {
+        color: #FFD700 !important;
     }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 teams = [
