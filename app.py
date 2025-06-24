@@ -45,43 +45,49 @@ def predict_winner(home, away):
     reason = f"{winner} have shown strong recent form and better stats."
     return winner, loser, win_chance_winner, win_chance_loser, total_points, margin_range, reason
 
-st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", page_icon="🏉")
+st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", page_icon="🏉", layout="centered")
 
-# PNG Flag style vertical tri-color background
+# Force full background including sidebar and main area
 st.markdown(
     """
     <style>
-    body {
-        margin: 0;
-        height: 100vh;
-        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%);
-        color: #ffd700;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: 30px;
+    /* Main app background */
+    .css-18e3th9 {
+        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%) !important;
+        color: #ffd700 !important;
+        min-height: 100vh;
     }
-    h1, h2, h3 {
-        color: #ffd700;
-        text-shadow: 2px 2px 4px #000000;
+    /* Sidebar background */
+    .css-1d391kg {
+        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%) !important;
+        color: #ffd700 !important;
     }
+    /* Text colors */
+    h1, h2, h3, .css-10trblm, .css-1d391kg * {
+        color: #ffd700 !important;
+        text-shadow: 1px 1px 3px #000000;
+    }
+    /* Buttons */
     .stButton>button {
-        background-color: #ffd700;
-        color: #d80000;
+        background-color: #ffd700 !important;
+        color: #d80000 !important;
         border-radius: 10px;
         font-weight: bold;
-        font-size: 18px;
-        padding: 12px 28px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        font-size: 16px;
+        padding: 10px 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.4);
         transition: background-color 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #ffec6e;
+        background-color: #ffec6e !important;
     }
+    /* Select boxes */
     .stSelectbox>div>div>select {
         background-color: #000000 !important;
         color: #ffd700 !important;
         font-weight: bold;
         border-radius: 6px;
-        padding: 6px;
+        padding: 5px;
     }
     </style>
     """,
