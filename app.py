@@ -1,19 +1,21 @@
 import streamlit as st
 import random
 
-# Inject PNG flag style background and fonts
+# Set background image and PNG flag colors overlay
 st.markdown(
     """
     <style>
-    .main {
-        background: linear-gradient(to right,
-            #000000 33.33%,
-            #d80000 33.33%,
-            #d80000 66.66%,
-            #ffd700 66.66%);
-        min-height: 100vh;
+    .stApp {
+        background: 
+          linear-gradient(
+            rgba(255, 215, 0, 0.6), 
+            rgba(255, 215, 0, 0.6)
+          ),
+          url('logo1.png');
+        background-size: cover;
+        background-position: center;
         color: black !important;
-        padding: 2rem;
+        min-height: 100vh;
     }
     h1, h2, h3, p, label, div {
         color: black !important;
@@ -65,6 +67,3 @@ if st.button("Predict Winner"):
     st.markdown(f"### Predicted winner: {winner}")
     st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
     st.markdown(f"**Why?** Based on insights from pro analysts, tipsters, NRL fans, and AI.")
-
-    # Show PNG flag image below predictions
-    st.image("logo1.png", use_container_width=True)
