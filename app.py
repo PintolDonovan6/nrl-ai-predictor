@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# Inject CSS for PNG colors
+# Inject PNG colors CSS
 st.markdown(
     """
     <style>
@@ -44,23 +44,33 @@ reason_map = {
     "Newcastle Knights": "Newcastle Knights are rebuilding this season.",
 }
 
-# Define margin brackets as total combined points ranges
+# Margin brackets as ranges (difference in points)
 margin_brackets = [
     (1, 10),
     (11, 20),
-    (30, 40),
+    (21, 30),
+    (31, 40),
     (41, 50),
-    (51, 100),  # 51+ (assuming max 100)
+    (51, 100),  # 51+
 ]
+
+def categorize_margin(margin):
+    for low, high in margin_brackets:
+        if low <= margin <= high:
+            if high == 100:
+                return f"{low}+"
+            else:
+                return f"{low}-{high}"
+    return "Unknown"
 
 def predict_winner(team1, team2):
     chance1 = round(random.uniform(40, 60), 1)
     chance2 = round(100 - chance1, 1)
     winner = team1 if chance1 > chance2 else team2
-    # Pick a random bracket for total points
-    margin_range = random.choice(margin_brackets)
-    total_points = random.randint(margin_range[0], margin_range[1])
-    return winner, chance1, chance2, total_points, margin_range
+    # Random margin difference (points margin)
+    margin = random.randint(1, 60)
+    margin_range = categorize_margin(margin)
+    return winner, chance1, chance2, margin, margin_range
 
 st.title("NRL Match Predictor | Samting Blo Ples")
 
@@ -68,9 +78,8 @@ team1 = st.selectbox("Choose Team 1", teams)
 team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
 
 if st.button("Predict Winner"):
-    winner, chance1, chance2, total_points, bracket = predict_winner(team1, team2)
-    bracket_str = f"{bracket[0]}-{bracket[1]}" if bracket[1] != 100 else f"{bracket[0]}+"
+    winner, chance1, chance2, margin, margin_range = predict_winner(team1, team2)
     st.write(f"Predicted winner: **{winner}**")
     st.write(f"Winning chance: {team1} {chance1}% - {team2} {chance2}%")
-    st.write(f"Predicted total points: {total_points} (Range: {bracket_str})")
+    st.write(f"Predicted points margin: {margin} (Range: {margin_range})")
     st.write(f"Why? {reason_map.get(winner, 'Based on recent analysis and form.')}")
