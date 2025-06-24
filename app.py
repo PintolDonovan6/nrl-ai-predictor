@@ -64,7 +64,7 @@ if st.button("Predict Winner"):
 
     st.markdown(f"### Predicted winner: {winner}")
     st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
-    st.markdown(f"**Why?** Based on AI, PNG passion, and stats.")
+    st.markdown(f"**Why?** Based on insights from pro analysts, tipsters, NRL fans, and AI.")
 
     # Show PNG flag image below predictions
     st.image("logo1.png", use_container_width=True)
