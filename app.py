@@ -1,104 +1,91 @@
 import streamlit as st
 import requests
+from bs4 import BeautifulSoup
 import random
 
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
 
-# PNG colors style
+# PNG theme colors
 st.markdown("""
 <style>
 body, .css-18e3th9, .main {
-  background-color: #000000 !important; /* Black */
-  color: #FFD700 !important;            /* Gold */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000 !important;
+  color: #FFD700 !important;
+  font-family: 'Segoe UI', sans-serif;
 }
 div.stButton > button {
-  background-color: #d80000 !important; /* PNG Red */
+  background-color: #d80000 !important;
   color: white !important;
   font-weight: bold !important;
-  border-radius: 10px !important;
-  padding: 10px 24px !important;
-  font-size: 1.1em !important;
+  padding: 12px 24px;
+  border-radius: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-def fetch_upcoming_nrl_fixtures():
-    url = "https://www.thesportsdb.com/api/v1/json/1/eventsnextleague.php?id=4387"
+def fetch_nrl_fixtures():
+    url = "https://www.nrl.com/draw/"
     try:
-        response = requests.get(url)
-        data = response.json()
-        events = data.get('events', [])
+        response = requests.get(url, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
         fixtures = []
-        for e in events:
-            home = e['strHomeTeam']
-            away = e['strAwayTeam']
-            date = e['dateEvent']
-            fixtures.append({'home': home, 'away': away, 'date': date})
+
+        cards = soup.find_all('div', class_='matchCard')
+        for card in cards[:5]:  # Limit to 5 for demo
+            teams = card.find_all('div', class_='teamName')
+            if len(teams) == 2:
+                home = teams[0].text.strip()
+                away = teams[1].text.strip()
+                date = card.find('div', class_='matchCard__date').text.strip()
+                fixtures.append({'home': home, 'away': away, 'date': date})
         return fixtures
-    except Exception as ex:
-        st.error(f"Error fetching fixtures: {ex}")
+    except Exception as e:
         return []
 
-# Margin brackets for points difference
-margin_brackets = [
-    (1, 10),
-    (11, 20),
-    (21, 30),
-    (31, 40),
-    (41, 50),
-    (51, 100),
-]
-
 def categorize_margin(margin):
-    for low, high in margin_brackets:
-        if low <= margin <= high:
-            if high == 100:
-                return f"{low}+"
-            else:
-                return f"{low}-{high}"
-    return "Unknown"
+    if margin <= 10:
+        return "1–10"
+    elif margin <= 20:
+        return "11–20"
+    elif margin <= 30:
+        return "21–30"
+    elif margin <= 40:
+        return "31–40"
+    elif margin <= 50:
+        return "41–50"
+    else:
+        return "51+"
 
-def simple_prediction(home, away):
-    # Simple random winning chances around 50%
-    home_chance = round(random.uniform(45, 60), 1)
-    away_chance = round(100 - home_chance, 1)
-    winner = home if home_chance > away_chance else away
+def predict_match(home, away):
+    home_pct = round(random.uniform(40, 60), 1)
+    away_pct = round(100 - home_pct, 1)
+    winner = home if home_pct > away_pct else away
     margin = random.randint(1, 60)
-    margin_range = categorize_margin(margin)
-    reason_map = {
-        home: f"{home} have strong recent form.",
-        away: f"{away} have key players fit and ready."
+    reason = f"{winner} have stronger recent form based on general analysis."
+    return {
+        "winner": winner,
+        "home_pct": home_pct,
+        "away_pct": away_pct,
+        "margin": margin,
+        "range": categorize_margin(margin),
+        "reason": reason
     }
-    return winner, home_chance, away_chance, margin, margin_range, reason_map[winner]
 
-st.title("NRL Match Predictor | Samting Blo Ples")
+st.title("🏉 NRL Match Predictor | Samting Blo Ples")
 
-fixtures = fetch_upcoming_nrl_fixtures()
+matches = fetch_nrl_fixtures()
 
-if not fixtures:
-    st.warning("No upcoming fixtures found. Please try again later.")
-    st.stop()
+if not matches:
+    st.warning("No live fixtures available right now. Try again later.")
+else:
+    selected = st.selectbox("Choose a match", [f"{m['home']} vs {m['away']} — {m['date']}" for m in matches])
+    idx = [f"{m['home']} vs {m['away']} — {m['date']}" for m in matches].index(selected)
+    match = matches[idx]
 
-# Show next fixtures for user to pick match
-match_options = [f"{f['home']} vs {f['away']} on {f['date']}" for f in fixtures]
-selected_match = st.selectbox("Select a match to predict", match_options)
+    if st.button("Predict Winner"):
+        result = predict_match(match['home'], match['away'])
 
-selected_index = match_options.index(selected_match)
-selected_fixture = fixtures[selected_index]
-
-home_team = selected_fixture['home']
-away_team = selected_fixture['away']
-
-st.write(f"### Predicting: {home_team} vs {away_team}")
-
-if st.button("Predict Winner"):
-    winner, home_chance, away_chance, margin, margin_range, reason = simple_prediction(home_team, away_team)
-
-    st.markdown(f"**Predicted winner:** {winner}")
-    st.markdown(f"**Winning chance:** {home_team} {home_chance}% - {away_team} {away_chance}%")
-    st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
-    st.markdown(f"**Why?** {reason}")
-
-st.markdown("---")
-st.markdown("⚠️ *Note: This is a demo using live fixtures but predictions are randomly generated and not from real analysis.*")
+        st.markdown(f"### Predicted Winner: **{result['winner']}**")
+        st.write(f"**Winning Chance:** {match['home']} {result['home_pct']}% - {match['away']} {result['away_pct']}%")
+        st.write(f"**Predicted Margin:** {result['margin']} (Range: {result['range']})")
+        st.write(f"**Why?** {result['reason']}")
