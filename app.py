@@ -1,11 +1,11 @@
 import streamlit as st
 import random
 
-# Custom CSS for PNG colors background and text
+# Inject PNG flag style background and fonts
 st.markdown(
     """
     <style>
-    .reportview-container {
+    .main {
         background: linear-gradient(to right,
             #000000 33.33%,
             #d80000 33.33%,
@@ -13,14 +13,7 @@ st.markdown(
             #ffd700 66.66%);
         min-height: 100vh;
         color: black !important;
-    }
-    .sidebar-content {
-        background: linear-gradient(to right,
-            #000000 33.33%,
-            #d80000 33.33%,
-            #d80000 66.66%,
-            #ffd700 66.66%);
-        color: black !important;
+        padding: 2rem;
     }
     h1, h2, h3, p, label, div {
         color: black !important;
@@ -36,11 +29,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Title
 st.title("NRL Match Predictor | Samting Blo Ples")
 
-# Team selectors
-team_list = [
+teams = [
     "Brisbane Broncos",
     "Melbourne Storm",
     "Penrith Panthers",
@@ -51,17 +42,13 @@ team_list = [
     "Newcastle Knights",
 ]
 
-team1 = st.selectbox("Choose Team 1", team_list, index=0)
-team2 = st.selectbox("Choose Team 2", [team for team in team_list if team != team1], index=1)
+team1 = st.selectbox("Choose Team 1", teams, index=0)
+team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1], index=1)
 
-# Prediction button
 if st.button("Predict Winner"):
-
-    # Random prediction logic (replace with real AI logic later)
     winner = random.choice([team1, team2])
     margin = random.randint(1, 60)
 
-    # Margin range buckets
     if margin <= 10:
         margin_range = "1-10"
     elif margin <= 20:
@@ -75,10 +62,9 @@ if st.button("Predict Winner"):
     else:
         margin_range = "51+"
 
-    # Show prediction results
     st.markdown(f"### Predicted winner: {winner}")
     st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
     st.markdown(f"**Why?** Based on AI, PNG passion, and stats.")
 
-    # Show your image below predictions
+    # Show PNG flag image below predictions
     st.image("logo1.png", use_container_width=True)
