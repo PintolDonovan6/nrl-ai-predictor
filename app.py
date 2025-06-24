@@ -1,130 +1,73 @@
 import streamlit as st
 
-# Add this code right after the imports and before any other Streamlit commands
-
+# Inject PNG flag background and style
 st.markdown(
     """
     <style>
-    /* Main page background with PNG flag colors */
-    .css-18e3th9 {
-        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%);
+    /* Apply PNG flag vertical stripes as full background */
+    .reportview-container {
+        background: linear-gradient(to right, 
+            #000000 33.33%, 
+            #d80000 33.33%, 
+            #d80000 66.66%, 
+            #ffd700 66.66%);
         min-height: 100vh;
+        color: #ffd700;
     }
-    /* Text color and shadow for readability */
-    body, h1, h2, h3, p, div {
+
+    /* Fix sidebar background too */
+    .sidebar-content {
+        background: linear-gradient(to right, 
+            #000000 33.33%, 
+            #d80000 33.33%, 
+            #d80000 66.66%, 
+            #ffd700 66.66%);
+        color: #ffd700;
+    }
+
+    /* Text styling for readability */
+    h1, h2, h3, p, label, div {
         color: #ffd700 !important;
         text-shadow: 1px 1px 2px black;
     }
+
+    /* Buttons with better contrast */
+    button, .stButton>button {
+        background-color: #d80000 !important;
+        color: white !important;
+        font-weight: bold;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-import streamlit as st
-import random
+# Your app UI goes here
+st.title("NRL Match Predictor | Samting Blo Ples")
 
-NRL_TEAMS = [
-    "Brisbane Broncos",
-    "Melbourne Storm",
-    "Penrith Panthers",
-    "Sydney Roosters",
-    "South Sydney Rabbitohs",
-    "Canberra Raiders",
-    "Parramatta Eels",
-    "Newcastle Knights",
-    "Wests Tigers",
-    "Gold Coast Titans",
-    "St. George Illawarra Dragons",
-    "Cronulla Sharks",
-    "Manly Sea Eagles",
-    "Canterbury Bulldogs",
-    "New Zealand Warriors",
-    "North Queensland Cowboys"
-]
+team1 = st.selectbox("Choose Team 1", ["Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters"])
+team2 = st.selectbox("Choose Team 2", ["Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights"])
 
-def predict_winner(home, away):
-    winner = random.choice([home, away])
-    loser = away if winner == home else home
-
-    win_chance_winner = round(random.uniform(52, 75), 1)
-    win_chance_loser = round(100 - win_chance_winner, 1)
-
-    total_points = random.randint(1, 70)
-
-    if total_points <= 10:
+if st.button("Predict Winner"):
+    # Dummy prediction logic
+    import random
+    winner = random.choice([team1, team2])
+    margin = random.randint(1, 60)
+    
+    # Calculate margin range bucket
+    if margin <= 10:
         margin_range = "1-10"
-    elif total_points <= 20:
+    elif margin <= 20:
         margin_range = "11-20"
-    elif total_points <= 30:
+    elif margin <= 30:
         margin_range = "21-30"
-    elif total_points <= 40:
+    elif margin <= 40:
         margin_range = "31-40"
-    elif total_points <= 50:
+    elif margin <= 50:
         margin_range = "41-50"
     else:
         margin_range = "51+"
-
-    reason = f"{winner} have shown strong recent form and better stats."
-    return winner, loser, win_chance_winner, win_chance_loser, total_points, margin_range, reason
-
-st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", page_icon="🏉", layout="centered")
-
-# Force full background including sidebar and main area
-st.markdown(
-    """
-    <style>
-    /* Main app background */
-    .css-18e3th9 {
-        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%) !important;
-        color: #ffd700 !important;
-        min-height: 100vh;
-    }
-    /* Sidebar background */
-    .css-1d391kg {
-        background: linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%) !important;
-        color: #ffd700 !important;
-    }
-    /* Text colors */
-    h1, h2, h3, .css-10trblm, .css-1d391kg * {
-        color: #ffd700 !important;
-        text-shadow: 1px 1px 3px #000000;
-    }
-    /* Buttons */
-    .stButton>button {
-        background-color: #ffd700 !important;
-        color: #d80000 !important;
-        border-radius: 10px;
-        font-weight: bold;
-        font-size: 16px;
-        padding: 10px 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-        transition: background-color 0.3s ease;
-    }
-    .stButton>button:hover {
-        background-color: #ffec6e !important;
-    }
-    /* Select boxes */
-    .stSelectbox>div>div>select {
-        background-color: #000000 !important;
-        color: #ffd700 !important;
-        font-weight: bold;
-        border-radius: 6px;
-        padding: 5px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.title("NRL Match Predictor | Samting Blo Ples")
-st.write("Powered by AI, PNG passion, and your chosen teams.")
-
-team1 = st.selectbox("Choose Team 1", NRL_TEAMS, index=0)
-team2 = st.selectbox("Choose Team 2", [t for t in NRL_TEAMS if t != team1], index=1)
-
-if st.button("Predict Winner"):
-    winner, loser, win_chance_winner, win_chance_loser, total_points, margin_range, reason = predict_winner(team1, team2)
-    st.subheader(f"Predicted winner: {winner}")
-    st.write(f"Winning chance: {winner} {win_chance_winner}% - {loser} {win_chance_loser}%")
-    st.write(f"Predicted total points margin: {total_points} (Range: {margin_range})")
-    st.write(f"Why? {reason}")
+    
+    st.write(f"**Predicted winner:** {winner}")
+    st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
+    st.write(f"**Why?** Based on AI and PNG passion.")
