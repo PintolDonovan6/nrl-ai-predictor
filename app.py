@@ -70,8 +70,8 @@ if st.button("Predict Winner"):
     st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
     st.write(f"**Why?** Based on AI and PNG passion.")
 
-# Display the image (logo1.png) with updated parameter
+# Display the image (logo1.png) without deprecated parameters
 if os.path.exists("logo1.png"):
-    st.image("logo1.png", use_container_width=True)
+    st.image("logo1.png")  # no use_container_width here
 else:
     st.write("Logo image not found.")
