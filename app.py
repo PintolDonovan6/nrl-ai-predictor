@@ -1,6 +1,5 @@
 import streamlit as st
 
-# Inject PNG colors and fonts CSS
 st.markdown(
     """
     <style>
@@ -8,36 +7,30 @@ st.markdown(
         background-color: #000000;
         color: #ffffff;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        padding: 30px 40px;
+        padding: 40px;
     }
     h1 {
-        color: #d80000;
-        text-shadow: 2px 2px 6px #ffcc00;
+        color: #d80000; /* PNG red */
         font-weight: 900;
         font-size: 3rem;
-    }
-    h2 {
-        color: #ffcc00;
-        font-weight: 700;
-        font-size: 2.4rem;
-        margin-top: 20px;
+        margin-bottom: 10px;
     }
     p {
+        color: #eeeeee;
         font-size: 1.2rem;
-        color: #eee;
-        line-height: 1.6;
+        margin-top: 0;
+        margin-bottom: 30px;
     }
     div.stButton > button:first-child {
         background-color: #d80000;
         color: white;
-        font-weight: bold;
+        font-weight: 700;
         border-radius: 12px;
         padding: 16px 40px;
         font-size: 1.2rem;
         box-shadow: 0 0 20px #d80000;
-        transition: background-color 0.3s ease;
         cursor: pointer;
-        margin-top: 25px;
+        transition: background-color 0.3s ease;
     }
     div.stButton > button:first-child:hover {
         background-color: #ffcc00;
@@ -49,19 +42,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# App content starts here
 st.title("NRL Match Predictor | Samting Blo Ples")
+st.write("Powered by AI and the passion of Papua New Guinea’s rugby league fans.")
+st.write("Predict match winners based on stats, expert views, and fan sentiment.")
 
-st.write(
-    """
-    Powered by AI and the passion of Papua New Guinea’s rugby league fans.  
-    Predict match winners based on stats, expert views, and fan sentiment.
-    """
-)
-
-st.header("Try the Predictor")
-
-if st.button("Try the Predictor Now"):
-    st.success("Traim Nau! Predictor is working!")
-
-# You can add your predictor logic here
+if st.button("Try the Predictor"):
+    st.success("Traim Nau! Predictor is working.")
