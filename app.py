@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 import random
 
-# Function to scrape expert tips from Zero Tackle
 def get_expert_tips():
     url = "https://www.zerotackle.com/nrl-predictions/"
     try:
@@ -16,8 +15,6 @@ def get_expert_tips():
     soup = BeautifulSoup(res.text, "html.parser")
     tips = {}
 
-    # Inspecting the Zero Tackle page, predictions are inside divs with class "predictions__list__item"
-    # Teams are in "predictions__teams", winner in "predictions__tip", analysis in "predictions__tip-description"
     matches = soup.select("div.predictions__list__item")
     for match in matches:
         teams_elem = match.select_one("div.predictions__teams")
@@ -26,7 +23,6 @@ def get_expert_tips():
 
         if teams_elem and winner_elem:
             teams_text = teams_elem.get_text(separator="|", strip=True)
-            # Teams are separated by | (pipe) symbol in the HTML structure
             teams = [t.strip() for t in teams_text.split("|") if t.strip()]
             if len(teams) == 2:
                 winner = winner_elem.get_text(strip=True)
@@ -36,9 +32,6 @@ def get_expert_tips():
                     "analysis": analysis
                 }
     return tips
-
-
-# Streamlit app UI starts here
 
 # PNG Flag colors for background styling
 st.markdown(
@@ -69,13 +62,22 @@ st.title("NRL Match Predictor | Samting Blo Ples")
 
 teams = [
     "Brisbane Broncos",
-    "Melbourne Storm",
-    "Penrith Panthers",
-    "Sydney Roosters",
     "Canberra Raiders",
-    "South Sydney Rabbitohs",
+    "Canterbury Bulldogs",
+    "Cronulla Sharks",
+    "Gold Coast Titans",
+    "Manly Sea Eagles",
+    "Melbourne Storm",
+    "Newcastle Knights",
+    "New Zealand Warriors",
+    "North Queensland Cowboys",
     "Parramatta Eels",
-    "Newcastle Knights"
+    "Penrith Panthers",
+    "South Sydney Rabbitohs",
+    "St George Illawarra Dragons",
+    "Sydney Roosters",
+    "Wests Tigers",
+    "Dolphins"
 ]
 
 team1 = st.selectbox("Choose Team 1", teams)
@@ -94,10 +96,8 @@ else:
         if prediction:
             winner = prediction["winner"]
             analysis = prediction["analysis"]
-            # Random margin for demo (replace with your own model later)
             margin = random.randint(5, 60)
 
-            # Bucket margin into ranges
             if margin <= 10:
                 margin_range = "1-10"
             elif margin <= 20:
@@ -112,7 +112,7 @@ else:
                 margin_range = "51+"
 
             st.markdown(f"### Predicted winner: {winner}")
-            st.markdown(f"**Winning chance:** {winner} ~ {round(random.uniform(55, 75),1)}% (Estimated)")  # dummy % estimation
+            st.markdown(f"**Winning chance:** {winner} ~ {round(random.uniform(55, 75),1)}% (Estimated)")
             st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
             st.markdown(f"**Why?** {analysis}")
 
