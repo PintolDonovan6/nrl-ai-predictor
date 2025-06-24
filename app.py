@@ -20,7 +20,19 @@ upcoming_matches = [
     ("Parramatta Eels", "Newcastle Knights"),
 ]
 
-# --- Fetch latest Pacific Racing NRL tips from Facebook group public posts ---
+# --- Manual fallback Pacific Racing tips ---
+manual_pacific_racing_guide = {
+    "Brisbane Broncos": "9+",
+    "Melbourne Storm": "1-12",
+    "Penrith Panthers": "9+",
+    "Sydney Roosters": "1-12",
+    "South Sydney Rabbitohs": "9+",
+    "Canberra Raiders": "1-12",
+    "Parramatta Eels": "9+",
+    "Newcastle Knights": "1-12",
+}
+
+# --- Fetch latest Pacific Racing NRL tips from Facebook ---
 def fetch_pacific_racing_tips():
     url = "https://www.facebook.com/groups/1666493780448546"  # Pacific Racing tips group
     headers = {
@@ -31,14 +43,14 @@ def fetch_pacific_racing_tips():
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Look for posts containing NRL tips by searching for typical keywords in text
+        # Find posts containing NRL tips by searching for 'data-ad-preview' attribute with 'message'
         posts_texts = [p.get_text(separator=" ").strip() for p in soup.find_all('div', attrs={'data-ad-preview': 'message'})]
-        
-        # Find the most recent post with keywords "NRL", "tips", or "prediction"
+
+        # Find the most recent post with "NRL" and "tip" or "predict"
         for text in posts_texts:
             if "NRL" in text.upper() and ("tip" in text.lower() or "predict" in text.lower()):
                 return text
-        
+
         return None
     except Exception as e:
         st.error(f"Failed to fetch Pacific Racing tips: {e}")
@@ -46,10 +58,9 @@ def fetch_pacific_racing_tips():
 
 # --- Parse tips text into match predictions ---
 def parse_pacific_racing_tips(text):
-    # This parser assumes tips are in a format like: "Raiders 1-12, Warriors 9+, Dolphins 9+, Storms 1-12 ..."
+    # Expected format example: "Raiders 1-12, Warriors 9+, Dolphins 9+, Storms 1-12 ..."
     predictions = {}
 
-    # Regex to capture "TeamName X-Y" or "TeamName 9+"
     pattern = r"([A-Za-z\s]+)\s(\d+\-\d+|\d+\+)"
     matches = re.findall(pattern, text)
 
@@ -60,7 +71,7 @@ def parse_pacific_racing_tips(text):
 
     return predictions
 
-# --- Predictor functions ---
+# --- Prediction functions ---
 def random_predictor(team1, team2):
     team1_chance = random.uniform(40, 60)
     team2_chance = 100 - team1_chance
@@ -69,11 +80,9 @@ def random_predictor(team1, team2):
     return winner, team1_chance, team2_chance, margin
 
 def pacific_racing_predictor(team1, team2, tips):
-    # Try to find tip for either team
     tip1 = tips.get(team1, None)
     tip2 = tips.get(team2, None)
 
-    # Determine winner based on tip margin estimates
     def tip_to_margin(tip):
         if tip is None:
             return 0
@@ -98,7 +107,7 @@ def pacific_racing_predictor(team1, team2, tips):
         t1_chance = 30
         t2_chance = 70
     else:
-        # If no tips or equal, fallback to random
+        # Fallback to random if no info or equal margin
         return random_predictor(team1, team2)
 
     return winner, t1_chance, t2_chance, margin
@@ -112,7 +121,7 @@ def generate_summary(winner, team1, team2, method):
             f"{winner} have won their last encounters against {team2 if winner == team1 else team1}.",
             f"Betting odds favor {winner}.",
         ]
-    else:  # Pacific Racing
+    else:  # Pacific Racing Guide
         reasons = [
             f"Pacific Racing guide predicts {winner} will win.",
             f"{winner} has a stronger predicted margin.",
@@ -137,8 +146,8 @@ if method == "Pacific Racing Guide":
         for team, tip in tips.items():
             st.write(f"- {team}: {tip}")
     else:
-        st.warning("Could not fetch tips. Using random prediction fallback.")
-        method = "Random"
+        st.warning("Could not fetch tips. Using manual fallback data.")
+        tips = manual_pacific_racing_guide
 
 st.header("Upcoming Matches & Predictions:")
 
@@ -157,4 +166,4 @@ for match in upcoming_matches:
     st.write("Why? " + generate_summary(winner, team1, team2, method))
     st.write("---")
 
-st.write("*Note: Pacific Racing scraping depends on public access to Facebook posts. If unavailable, predictions fallback to random.*")
+st.write("*Note: Pacific Racing scraping depends on public access to Facebook posts. If unavailable, predictions fallback to manual data.*")
