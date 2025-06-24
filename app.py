@@ -1,14 +1,9 @@
 import streamlit as st
-from PIL import Image
-import pytesseract
-import requests
-from bs4 import BeautifulSoup
 import random
-import re
 from collections import Counter
 
-# PNG Background + Styling
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples", layout="centered")
+
 st.markdown("""
     <style>
     .stApp {
@@ -29,14 +24,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# App Title
 st.title("NRL Match Predictor | Samting Blo Ples")
-st.markdown("Upload your **Pacific Racing Guide image**, and let AI + NRL news do the prediction magic!")
+st.markdown("Paste the **Pacific Racing Guide** or news headlines below to predict match results:")
 
-# Upload
-uploaded = st.file_uploader("Upload Pacific Racing Guide (PNG/JPG)", type=["png", "jpg", "jpeg"])
-
-# Team list for recognition
 team_list = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
@@ -44,34 +34,27 @@ team_list = [
     "St George Illawarra Dragons", "NZ Warriors", "Dolphins", "North Queensland Cowboys"
 ]
 
-def fetch_nrl_news():
-    try:
-        res = requests.get("https://www.nrl.com/news/", timeout=10)
-        soup = BeautifulSoup(res.text, "html.parser")
-        headlines = soup.find_all("h3")
-        return " ".join([h.get_text(strip=True) for h in headlines[:10]])
-    except:
-        return ""
+text_input = st.text_area("Paste Pacific Racing content here", height=250)
 
 def predict_from_text(text):
     found = [team for team in team_list if team.lower() in text.lower()]
     counts = Counter(found)
     top2 = counts.most_common(2)
     if len(top2) < 2:
-        return None, None, None, "Not enough team data found in image/news."
+        return None, None, None, "Not enough team data found in text."
 
     team1, team2 = top2[0][0], top2[1][0]
     count1, count2 = top2[0][1], top2[1][1]
 
     if count1 == count2:
         winner = random.choice([team1, team2])
-        reason = f"Even mentions across media; AI chose randomly between evenly matched teams."
+        reason = f"Even coverage across guide and tips. AI picked based on balance."
     elif count1 > count2:
         winner = team1
-        reason = f"{team1} had more coverage in tips and news than {team2}."
+        reason = f"{team1} had more mentions from tipsters and news."
     else:
         winner = team2
-        reason = f"{team2} had more attention across guide and news predictions."
+        reason = f"{team2} had more influence in guide and opinions."
 
     margin = random.randint(1, 60)
     if margin <= 10:
@@ -89,19 +72,15 @@ def predict_from_text(text):
 
     return f"{team1} vs {team2}", winner, f"{margin} (Range: {margin_range})", reason
 
-if uploaded:
-    with st.spinner("Extracting and analyzing Pacific Racing Guide..."):
-        image = Image.open(uploaded)
-        guide_text = pytesseract.image_to_string(image)
-        news_text = fetch_nrl_news()
-        combined = guide_text + " " + news_text
-
-        match_title, predicted_winner, margin, reason = predict_from_text(combined)
-
-        if match_title and predicted_winner:
+if st.button("Predict"):
+    if text_input.strip() == "":
+        st.error("Please paste the Pacific Racing guide content first.")
+    else:
+        match_title, predicted_winner, margin, reason = predict_from_text(text_input)
+        if match_title:
             st.subheader(f"Upcoming Match: {match_title}")
             st.success(f"Predicted winner: {predicted_winner}")
             st.write(f"**Predicted points margin:** {margin}")
             st.write(f"**Why?** {reason}")
         else:
-            st.error("Could not find enough team data. Try another guide or news update.")
+            st.warning("Not enough data found. Try again with more detailed content.")
