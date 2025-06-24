@@ -1,10 +1,12 @@
 import streamlit as st
+import os
+import random
 
-# Inject PNG flag background and style
+# Inject PNG flag vertical stripes as full background
 st.markdown(
     """
     <style>
-    /* Apply PNG flag vertical stripes as full background */
+    /* Background with PNG colors */
     .reportview-container {
         background: linear-gradient(to right, 
             #000000 33.33%, 
@@ -15,7 +17,7 @@ st.markdown(
         color: #ffd700;
     }
 
-    /* Fix sidebar background too */
+    /* Sidebar background */
     .sidebar-content {
         background: linear-gradient(to right, 
             #000000 33.33%, 
@@ -25,13 +27,13 @@ st.markdown(
         color: #ffd700;
     }
 
-    /* Text styling for readability */
+    /* Text styling */
     h1, h2, h3, p, label, div {
         color: #ffd700 !important;
         text-shadow: 1px 1px 2px black;
     }
 
-    /* Buttons with better contrast */
+    /* Buttons */
     button, .stButton>button {
         background-color: #d80000 !important;
         color: white !important;
@@ -42,19 +44,28 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Your app UI goes here
 st.title("NRL Match Predictor | Samting Blo Ples")
 
-team1 = st.selectbox("Choose Team 1", ["Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters"])
-team2 = st.selectbox("Choose Team 2", ["Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights"])
+# Teams list
+teams = [
+    "Brisbane Broncos",
+    "Melbourne Storm",
+    "Penrith Panthers",
+    "Sydney Roosters",
+    "Canberra Raiders",
+    "South Sydney Rabbitohs",
+    "Parramatta Eels",
+    "Newcastle Knights"
+]
+
+team1 = st.selectbox("Choose Team 1", teams)
+team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1])
 
 if st.button("Predict Winner"):
-    # Dummy prediction logic
-    import random
     winner = random.choice([team1, team2])
     margin = random.randint(1, 60)
-    
-    # Calculate margin range bucket
+
+    # Determine margin range bucket
     if margin <= 10:
         margin_range = "1-10"
     elif margin <= 20:
@@ -67,10 +78,11 @@ if st.button("Predict Winner"):
         margin_range = "41-50"
     else:
         margin_range = "51+"
-    
-    st.write(f"**Predicted winner:** {winner}")
-    st.write(f"**Predicted points margin:** {margin} (Range: {margin_range})")
-    st.write(f"**Why?** Based on AI and PNG passion.")
-    
-    # Show image below predictions
-    st.image("logo1.png", use_column_width=True)
+
+    st.markdown(f"**Predicted winner:** {winner}")
+    st.markdown(f"**Predicted points margin:** {margin} (Range: {margin_range})")
+    st.markdown(f"**Why?** Based on AI, PNG passion, and data analysis.")
+
+# Show your logo image below everything
+image_path = os.path.join(os.getcwd(), "logo1.png")
+st.image(image_path, use_column_width=True)
