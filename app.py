@@ -2,108 +2,110 @@ import streamlit as st
 import requests
 import random
 
-# YOUR Google API Key and Custom Search Engine ID
-API_KEY = "AIzaSyCNdyDKJSuRPApupwZEMQX4lnuGRm5YdXU"   # Your API key
-CSE_ID = "b10cae8aa7f2249bb"                         # Your CSE ID
+# === Your Google Custom Search credentials ===
+API_KEY = "AIzaSyCNdyDKJSuRPApupwZEMQX4lnuGRm5YdXU"
+CSE_ID   = "b10cae8aa7f2249bb"
 
-def google_search(query, api_key, cse_id, num=5):
-    search_url = "https://www.googleapis.com/customsearch/v1"
+# === Simple recent-form scores for fallback ===
+team_form = {
+    "Brisbane Broncos": 80, "Melbourne Storm": 85, "Penrith Panthers": 90,
+    "Sydney Roosters": 75, "Canberra Raiders": 70, "South Sydney Rabbitohs": 88,
+    "Parramatta Eels": 78, "Newcastle Knights": 72, "Cronulla Sharks": 68,
+    "Manly Sea Eagles": 66, "Gold Coast Titans": 60, "New Zealand Warriors": 58,
+    "North Queensland Cowboys": 62, "St George Illawarra Dragons": 65,
+    "Wests Tigers": 55
+}
+
+# === Attempt a Google CSE search ===
+def google_snippets(t1, t2):
+    url = "https://www.googleapis.com/customsearch/v1"
     params = {
-        "key": api_key,
-        "cx": cse_id,
-        "q": query,
-        "num": num
+        "key": API_KEY, "cx": CSE_ID,
+        "q": f"NRL {t1} vs {t2} expert prediction analysis",
+        "num": 5
     }
-    response = requests.get(search_url, params=params)
-    response.raise_for_status()
-    results = response.json()
-    return results.get("items", [])
+    r = requests.get(url, params=params, timeout=5)
+    r.raise_for_status()
+    return [item["snippet"] for item in r.json().get("items", [])]
 
-def analyze_snippets(snippets, team1, team2):
-    team1_score = 0
-    team2_score = 0
+# === Fallback prediction based on form ===
+def fallback_predict(t1, t2):
+    f1, f2 = team_form.get(t1,60), team_form.get(t2,60)
+    total = (f1+f2) or 1
+    p1, p2 = f1/total*100, f2/total*100
+    winner = t1 if p1>=p2 else t2
+    diff = abs(f1-f2)
+    if diff<=10:   rng="1–10"
+    elif diff<=20: rng="11–20"
+    elif diff<=30: rng="21–30"
+    elif diff<=40: rng="31–40"
+    elif diff<=50: rng="41–50"
+    else:          rng="51+"
+    return winner, p1, p2, rng, "Using recent form data (fallback)."
 
-    for snippet in snippets:
-        text = snippet.lower()
-        team1_score += text.count(team1.lower())
-        team2_score += text.count(team2.lower())
-        for word in ["win", "favored", "likely", "advantage", "strong"]:
-            if word in text:
-                if team1.lower() in text:
-                    team1_score += 1
-                if team2.lower() in text:
-                    team2_score += 1
+# === Combined prediction logic ===
+def predict(t1, t2):
+    try:
+        snippets = google_snippets(t1, t2)
+        if not snippets:
+            raise requests.HTTPError("no snippets")
+        s1 = sum(s.lower().count(t1.lower()) for s in snippets)
+        s2 = sum(s.lower().count(t2.lower()) for s in snippets)
+        for kw in ["win","favored","likely","advantage","strong"]:
+            s1 += sum(1 for s in snippets if t1.lower() in s.lower() and kw in s.lower())
+            s2 += sum(1 for s in snippets if t2.lower() in s.lower() and kw in s.lower())
+        total = s1+s2 or 1
+        p1, p2 = s1/total*100, s2/total*100
+        winner = t1 if p1>=p2 else t2
+        diff = abs(p1-p2)
+        if diff<=10:   rng="1–10"
+        elif diff<=20: rng="11–20"
+        elif diff<=30: rng="21–30"
+        elif diff<=40: rng="31–40"
+        elif diff<=50: rng="41–50"
+        else:          rng="51+"
+        return winner, p1, p2, rng, "Based on live expert tips & fan sentiment."
+    except Exception:
+        return fallback_predict(t1, t2)
 
-    total = team1_score + team2_score
-    if total == 0:
-        return None, None, None, None
+# === Streamlit UI & styling ===
+st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case")
 
-    team1_pct = (team1_score / total) * 100
-    team2_pct = (team2_score / total) * 100
+st.markdown("""
+    <style>
+      .stApp {
+        background: url("logo1.png") center/cover no-repeat fixed;
+      }
+      body, h1, h2, h3, p, div, label, span, button {
+        color: white !important;
+        text-shadow: 1px 1px 2px black;
+        font-family: 'Segoe UI', sans-serif;
+      }
+      button, .stButton>button {
+        background-color: #d80000 !important;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 8px 16px;
+      }
+      .stSelectbox>div>div>div>div {
+        background-color: rgba(0,0,0,0.6) !important;
+        color: white !important;
+      }
+    </style>
+""", unsafe_allow_html=True)
 
-    if team1_pct > team2_pct:
-        winner = team1
-    elif team2_pct > team1_pct:
-        winner = team2
-    else:
-        winner = random.choice([team1, team2])
-
-    margin_diff = abs(team1_pct - team2_pct)
-    if margin_diff <= 10:
-        margin_range = "1–10"
-    elif margin_diff <= 20:
-        margin_range = "11–20"
-    elif margin_diff <= 30:
-        margin_range = "21–30"
-    elif margin_diff <= 40:
-        margin_range = "31–40"
-    elif margin_diff <= 50:
-        margin_range = "41–50"
-    else:
-        margin_range = "51+"
-
-    return winner, margin_range, team1_pct, team2_pct
-
-# Streamlit UI
 st.title("NRL Match Predictor | Mango Mine Case")
 st.markdown("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
-nrl_teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
-    "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
-    "Gold Coast Titans", "New Zealand Warriors", "Manly Warringah Sea Eagles",
-    "St George Illawarra Dragons", "Wests Tigers", "Cronulla Sharks",
-    "North Queensland Cowboys"
-]
+teams = list(team_form.keys())
+t1 = st.selectbox("Choose Team 1", teams)
+t2 = st.selectbox("Choose Team 2", [x for x in teams if x!=t1])
 
-team1 = st.selectbox("Choose Team 1", nrl_teams)
-team2 = st.selectbox("Choose Team 2", nrl_teams)
-
-if team1 == team2:
-    st.warning("Please select two different teams.")
-else:
-    if st.button("Predict Winner"):
-        query = f"NRL {team1} vs {team2} expert prediction analysis"
-        try:
-            items = google_search(query, API_KEY, CSE_ID, num=5)
-            snippets = [item["snippet"] for item in items]
-            if not snippets:
-                st.info("No expert tips found online. Using fallback prediction.")
-                fallback_winner = random.choice([team1, team2])
-                st.write(f"**Predicted winner:** {fallback_winner}")
-                st.write("Could not fetch expert predictions. Please try again later.")
-            else:
-                winner, margin_range, team1_pct, team2_pct = analyze_snippets(snippets, team1, team2)
-                if winner is None:
-                    st.info("Insufficient data found. Using fallback prediction.")
-                    fallback_winner = random.choice([team1, team2])
-                    st.write(f"**Predicted winner:** {fallback_winner}")
-                    st.write("No clear expert consensus found.")
-                else:
-                    loser = team2 if winner == team1 else team1
-                    st.write(f"**Predicted winner:** {winner}")
-                    st.write(f"**Winning chance:** {winner} {max(team1_pct, team2_pct):.1f}% – {loser} {min(team1_pct, team2_pct):.1f}%")
-                    st.write(f"**Predicted points margin range:** {margin_range}")
-                    st.write(f"**Why?** Based on real-time expert tips, fan sentiment, and analysis collected from trusted sources online.")
-        except Exception as e:
-            st.error(f"Error fetching or analyzing tips: {e}")
+if st.button("Predict Winner"):
+    winner, p1, p2, margin, reason = predict(t1, t2)
+    loser = t2 if winner==t1 else t1
+    st.markdown(f"**Predicted winner:** {winner}")
+    st.markdown(f"**Winning chances:** {winner} {max(p1,p2):.1f}% – {loser} {min(p1,p2):.1f}%")
+    st.markdown(f"**Predicted points margin range:** {margin}")
+    st.markdown(f"**Why?** {reason}")
