@@ -1,10 +1,9 @@
 import streamlit as st
-import requests
 import random
 
 st.set_page_config(page_title="NRL Match Predictor | Samting Blo Ples")
 
-# PNG flag vertical stripes background styling
+# Inject PNG flag vertical stripes background and styles
 st.markdown("""
 <style>
 .reportview-container, .main {
@@ -30,7 +29,6 @@ button, .stButton>button {
 
 st.title("NRL Match Predictor | Samting Blo Ples")
 
-# Teams list (simplified)
 teams = [
     "Brisbane Broncos",
     "Melbourne Storm",
@@ -46,18 +44,13 @@ team1 = st.selectbox("Choose Team 1", teams)
 team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
 
 def fetch_team_form(team):
-    """
-    Dummy function: returns a random 'form score' for demonstration.
-    Replace with real data logic from an API if you get one.
-    """
+    # Dummy form value, replace with real data if you want
     return random.uniform(0, 100)
 
 if st.button("Predict Winner"):
-
     form1 = fetch_team_form(team1)
     form2 = fetch_team_form(team2)
 
-    # Simple form-based prediction
     if form1 > form2:
         winner = team1
         loser = team2
@@ -67,10 +60,9 @@ if st.button("Predict Winner"):
         loser = team1
         win_chance = 50 + (form2 - form1) * 0.5
 
-    win_chance = min(max(win_chance, 51), 90)  # clamp between 51% and 90%
+    win_chance = min(max(win_chance, 51), 90)
     lose_chance = 100 - win_chance
 
-    # Predict points margin total combined, in PNG ranges
     margin_total = random.randint(1, 60)
     if margin_total <= 10:
         margin_range = "1-10"
@@ -89,9 +81,10 @@ if st.button("Predict Winner"):
     st.write(f"**Predicted winner:** {winner}")
     st.write(f"Winning chance: {winner} {win_chance:.1f}% - {loser} {lose_chance:.1f}%")
     st.write(f"Predicted combined points margin: {margin_total} (Range: {margin_range})")
-
-    # Explanation based on 'form'
     st.write(
         f"**Why?** {winner} currently show better recent form metrics "
         f"compared to {loser}, which influences this prediction."
     )
+    
+    # Display PNG-related image under predictions
+    st.image("logo1.png", caption="Powered by PNG Passion", use_column_width=True)
