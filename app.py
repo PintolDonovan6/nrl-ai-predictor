@@ -1,66 +1,56 @@
 import streamlit as st
 import random
-from PIL import Image
-import base64
 
-def get_base64_image(image_path):
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+# Inject PNG flag vertical stripes as full background with image overlay
+st.markdown(
+    """
+    <style>
+    /* Full page background with PNG flag colors */
+    .stApp {
+        background: 
+          url('logo1.png') no-repeat center center fixed,
+          linear-gradient(to right, #000000 33.33%, #d80000 33.33%, #d80000 66.66%, #ffd700 66.66%);
+        background-size: cover, cover;
+        color: white;
+    }
 
-def set_bg_image(image_path):
-    encoded_image = get_base64_image(image_path)
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{encoded_image}");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: white;
-        }}
-        h1, h2, h3, label, .stSelectbox label {{
-            color: white !important;
-            text-shadow: 1px 1px 2px black;
-        }}
-        .stButton > button {{
-            background-color: #000000;
-            color: #ffd700;
-            font-weight: bold;
-            border-radius: 8px;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    /* Text styling */
+    h1, h2, h3, p, label, div {
+        color: white !important;
+        text-shadow: 1px 1px 3px black;
+    }
 
-st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
-set_bg_image("logo1.png")
+    /* Button style */
+    button, .stButton>button {
+        background-color: #d80000 !important;
+        color: white !important;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.title("NRL Match Predictor | Mango Mine Case")
-st.markdown("_Powered by professional insights, tipster opinions, fan sentiment & AI._")
+st.markdown("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
+# List of all NRL teams
 teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "South Sydney Rabbitohs",
-    "Sydney Roosters", "Parramatta Eels", "Canberra Raiders", "Cronulla Sharks",
-    "Newcastle Knights", "Manly Sea Eagles", "North Queensland Cowboys", "Gold Coast Titans",
-    "Wests Tigers", "NZ Warriors", "St. George Illawarra Dragons", "Dolphins"
+    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
+    "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
+    "Cronulla Sharks", "Manly Sea Eagles", "Gold Coast Titans", "Wests Tigers",
+    "St. George Illawarra Dragons", "New Zealand Warriors", "North Queensland Cowboys", "Canterbury Bulldogs"
 ]
 
 team1 = st.selectbox("Choose Team 1", teams)
-team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
+team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1])
 
-if st.button("Predict Match"):
-    team1_score = random.randint(70, 100)
-    team2_score = random.randint(60, 95)
-    margin = abs(team1_score - team2_score)
+if st.button("Predict Winner"):
+    winner = random.choice([team1, team2])
+    # Simulate margin for prediction (just dummy logic, replace with real logic later)
+    margin = random.randint(1, 60)
 
-    winner = team1 if team1_score > team2_score else team2
-    loser = team2 if winner == team1 else team1
-
-    win_chance = round(random.uniform(60, 85), 1)
-    lose_chance = round(100 - win_chance, 1)
-
+    # Only show range, no exact margin number
     if margin <= 10:
         margin_range = "1–10"
     elif margin <= 20:
@@ -74,15 +64,7 @@ if st.button("Predict Match"):
     else:
         margin_range = "51+"
 
-    reason = random.choice([
-        f"{winner} has momentum from recent matches.",
-        f"{winner} is stronger in key positions based on fan opinions.",
-        f"Most tipsters are backing {winner}.",
-        f"{loser} has recent injuries affecting performance.",
-        f"{winner} leads in completion rate and defense stats."
-    ])
+    st.markdown(f"**Predicted Winner:** {winner}")
+    st.markdown(f"**Predicted points margin:** Range {margin_range}")
+    st.markdown(f"**Why?** Based on latest online expert tips, fan opinions, and performance stats.")
 
-    st.subheader(f"Predicted Winner: {winner}")
-    st.write(f"Winning chance: **{winner} {win_chance}%** – {loser} {lose_chance}%")
-    st.write(f"Predicted points margin: **{margin}** (Range: **{margin_range}**)")
-    st.write(f"**Why?** {reason}")
