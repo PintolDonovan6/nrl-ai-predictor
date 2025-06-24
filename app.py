@@ -3,12 +3,10 @@ import random
 from PIL import Image
 import base64
 
-# Encode background image
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
-# Set background with PNG flag image
 def set_bg_image(image_path):
     encoded_image = get_base64_image(image_path)
     st.markdown(
@@ -36,15 +34,12 @@ def set_bg_image(image_path):
         unsafe_allow_html=True
     )
 
-# Set app config and background
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 set_bg_image("logo1.png")
 
-# Title
 st.title("NRL Match Predictor | Mango Mine Case")
 st.markdown("_Powered by professional insights, tipster opinions, fan sentiment & AI._")
 
-# Team list
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "South Sydney Rabbitohs",
     "Sydney Roosters", "Parramatta Eels", "Canberra Raiders", "Cronulla Sharks",
@@ -52,16 +47,13 @@ teams = [
     "Wests Tigers", "NZ Warriors", "St. George Illawarra Dragons", "Dolphins"
 ]
 
-# Team selection
 team1 = st.selectbox("Choose Team 1", teams)
 team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
 
-# Predict
 if st.button("Predict Match"):
     team1_score = random.randint(70, 100)
     team2_score = random.randint(60, 95)
     margin = abs(team1_score - team2_score)
-    total_points = team1_score + team2_score
 
     winner = team1 if team1_score > team2_score else team2
     loser = team2 if winner == team1 else team1
