@@ -31,7 +31,6 @@ st.markdown("""
 st.title("NRL Match Predictor | Samting Blo Ples")
 st.write("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
-# List of all current NRL teams (2025)
 teams = [
     "Brisbane Broncos",
     "Canberra Raiders",
@@ -56,37 +55,27 @@ team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1])
 
 def scrape_prediction(t1, t2):
     try:
-        # We'll scrape https://www.zerotackle.com/predictions/ which has NRL tips
-        url = f"https://www.zerotackle.com/predictions/"
+        url = "https://www.zerotackle.com/predictions/"
         response = requests.get(url, timeout=7)
         if response.status_code != 200:
             return None, None
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Try to find predictions in the page by matching team names
-        # This site structures predictions in <div class="prediction-card"> for each match
-
         predictions = soup.find_all("div", class_="prediction-card")
         for pred in predictions:
-            teams_text = pred.find("div", class_="teams").get_text(strip=True).lower()
+            teams_div = pred.find("div", class_="teams")
+            if not teams_div:
+                continue
+            teams_text = teams_div.get_text(strip=True).lower()
             if t1.lower() in teams_text and t2.lower() in teams_text:
-                # Get predicted winner
                 winner_div = pred.find("div", class_="predicted-winner")
-                if winner_div:
-                    winner = winner_div.get_text(strip=True)
-                else:
-                    winner = None
-
-                # Get reason if available
+                winner = winner_div.get_text(strip=True) if winner_div else None
                 reason_div = pred.find("div", class_="reason")
                 reason = reason_div.get_text(strip=True) if reason_div else "Based on expert analysis."
-
-                # Get winning chance if available
                 odds_div = pred.find("div", class_="winning-chance")
                 winning_chance = odds_div.get_text(strip=True) if odds_div else None
 
-                # For margin, we simulate a range since it's not on site
                 margin = random.choice(["1-10", "11-20", "21-30", "31-40", "41-50", "51+"])
 
                 return {
@@ -95,6 +84,7 @@ def scrape_prediction(t1, t2):
                     "winning_chance": winning_chance,
                     "margin": margin
                 }, None
+
         return None, "No prediction found for this matchup."
     except Exception as e:
         return None, f"Error scraping predictions: {e}"
@@ -117,13 +107,14 @@ if st.button("Predict Winner"):
     with st.spinner("Fetching predictions..."):
         prediction, error = scrape_prediction(team1, team2)
 
-    if prediction:
+    if prediction and prediction["winner"]:
         st.markdown(f"### Predicted winner: {prediction['winner']}")
         st.markdown(f"**Winning chance:** {prediction['winning_chance'] if prediction['winning_chance'] else 'N/A'}")
         st.markdown(f"**Predicted points margin range:** {prediction['margin']}")
         st.markdown(f"**Why?** {prediction['reason']}")
     else:
-        st.warning(error)
+        if error:
+            st.warning(error)
         st.markdown("### Using fallback prediction")
         fallback = fallback_prediction(team1, team2)
         st.markdown(f"### Predicted winner: {fallback['winner']}")
