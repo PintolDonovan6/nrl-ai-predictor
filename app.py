@@ -1,4 +1,19 @@
 import streamlit as st
+import streamlit as st
+
+st.markdown("""
+<head>
+<meta name="description" content="NRL Match Predictor powered by AI and historical stats.">
+<meta name="keywords" content="NRL, Rugby League, Prediction, AI, Sports, Australia">
+<meta name="author" content="Your Name or Team">
+<meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw" />
+<title>NRL Match Predictor | Mango Mine Case</title>
+</head>
+""", unsafe_allow_html=True)
+
+# Your existing Streamlit code continues here
+# ...
+
 
 # Add SEO meta tags to help search engines index your app better
 st.markdown("""
