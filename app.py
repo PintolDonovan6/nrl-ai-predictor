@@ -1,9 +1,7 @@
 import streamlit as st
 
-# Set page config to wide and title
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 
-# Inject custom CSS for dark orange background and styling
 st.markdown(
     """
     <style>
@@ -34,7 +32,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# List of all NRL teams
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
@@ -42,7 +39,7 @@ teams = [
     "Manly Sea Eagles", "New Zealand Warriors", "North Queensland Cowboys"
 ]
 
-# Head-to-head win percentages (Team1 vs Team2: win % for Team1 since 2020)
+# Head-to-head win % (Team1 vs Team2)
 head_to_head = {
     ("Brisbane Broncos", "Melbourne Storm"): 35,
     ("Melbourne Storm", "Brisbane Broncos"): 65,
@@ -60,24 +57,36 @@ head_to_head = {
     ("New Zealand Warriors", "Manly Sea Eagles"): 38,
     ("North Queensland Cowboys", "Brisbane Broncos"): 55,
     ("Brisbane Broncos", "North Queensland Cowboys"): 45,
-    # Add more pairs for full coverage...
+    # Add more pairs as needed
+}
+
+# Team strength rating (0-100 scale, higher is stronger)
+team_strength = {
+    "Brisbane Broncos": 72,
+    "Melbourne Storm": 88,
+    "Penrith Panthers": 90,
+    "Sydney Roosters": 85,
+    "Canberra Raiders": 75,
+    "South Sydney Rabbitohs": 80,
+    "Parramatta Eels": 78,
+    "Newcastle Knights": 70,
+    "Gold Coast Titans": 65,
+    "Wests Tigers": 60,
+    "Cronulla Sharks": 74,
+    "St. George Illawarra Dragons": 68,
+    "Manly Sea Eagles": 76,
+    "New Zealand Warriors": 67,
+    "North Queensland Cowboys": 77,
 }
 
 def predict_winner(team1, team2):
     if team1 == team2:
         return None, None, None, None, None, "Select two different teams."
 
-    # Check for direct head-to-head data
     win_pct = head_to_head.get((team1, team2), None)
-    if win_pct is None:
-        # No data found, fallback to 50-50
-        winner = None
-        winning_chance = 50
-        losing_team = None
-        losing_chance = 50
-        margin = "N/A"
-        reason = f"No head-to-head data found for {team1} vs {team2}. Prediction is 50/50."
-    else:
+
+    if win_pct is not None:
+        # Use head-to-head data
         if win_pct > 50:
             winner = team1
             winning_chance = win_pct
@@ -94,7 +103,6 @@ def predict_winner(team1, team2):
             losing_team = None
             losing_chance = 50
 
-        # Points margin based on confidence
         if winning_chance >= 80:
             margin = "21–30"
         elif winning_chance >= 60:
@@ -104,17 +112,60 @@ def predict_winner(team1, team2):
 
         if winner:
             reason = (f"Based on historical head-to-head data since 2020, "
-                      f"{winner} has a {winning_chance:.1f}% winning chance against {losing_team}.")
+                      f"{winner} has a {winning_chance:.1f}% chance to win against {losing_team}.")
         else:
             reason = "This matchup is evenly matched based on historical data."
+
+    else:
+        # Fallback to team strength comparison
+        strength1 = team_strength.get(team1, 70)
+        strength2 = team_strength.get(team2, 70)
+
+        total = strength1 + strength2
+        if total == 0:
+            # Avoid division by zero
+            winning_chance_1 = 50
+            winning_chance_2 = 50
+        else:
+            winning_chance_1 = (strength1 / total) * 100
+            winning_chance_2 = 100 - winning_chance_1
+
+        if winning_chance_1 > winning_chance_2:
+            winner = team1
+            winning_chance = winning_chance_1
+            losing_team = team2
+            losing_chance = winning_chance_2
+        elif winning_chance_2 > winning_chance_1:
+            winner = team2
+            winning_chance = winning_chance_2
+            losing_team = team1
+            losing_chance = winning_chance_1
+        else:
+            winner = None
+            winning_chance = 50
+            losing_team = None
+            losing_chance = 50
+
+        if winning_chance >= 80:
+            margin = "21–30"
+        elif winning_chance >= 60:
+            margin = "11–20"
+        else:
+            margin = "1–10"
+
+        if winner:
+            reason = (f"No head-to-head data found. Based on overall team strength ratings, "
+                      f"{winner} is favored with a {winning_chance:.1f}% winning chance.")
+        else:
+            reason = "Teams are evenly matched based on overall strength ratings."
 
     return winner, winning_chance, losing_team, losing_chance, margin, reason
 
 
-# --- Streamlit UI ---
+# Streamlit UI
 
 st.title("NRL Match Predictor | Mango Mine Case")
-st.write("Powered by historical stats and expert logic with >80% confidence predictions.")
+st.write("Powered by historical stats, team strength, and expert logic — aiming for 80%+ accuracy.")
 
 team1 = st.selectbox("Choose Team 1", teams, index=0)
 team2 = st.selectbox("Choose Team 2", teams, index=1)
