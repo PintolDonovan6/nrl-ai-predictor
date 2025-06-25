@@ -3,11 +3,47 @@ import requests
 import random
 import re
 
-# GOOGLE CSE CONFIG
-API_KEY = "YOUR_GOOGLE_API_KEY"
-CSE_ID = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
+# --- YOUR API KEYS ---
+API_KEY = "AIzaSyCNdyDKJSuRPApupwZEMQX4lnuGRm5YdXU"
+CSE_ID = "b10cae8aa7f2249bb"
 
-# NRL Teams List
+# --- PNG-THEMED CSS ---
+st.markdown("""
+<style>
+.stApp {
+    background-image: url("logo1.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #FFD700 !important;
+    text-shadow: 1px 1px 2px #000;
+}
+p, label, div, span {
+    color: white !important;
+}
+.stButton>button {
+    background-color: #D80000;
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 0.6em 1.2em;
+}
+.css-1n76uvr, .css-1cpxqw2 {
+    background-color: rgba(0,0,0,0.6) !important;
+    border-radius: 10px;
+    padding: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- APP HEADER ---
+st.title("NRL Match Predictor | Mango Mine Case")
+st.caption("🔥 Powered by expert tips, fan insights, & AI | Styled with PNG pride 🇵🇬")
+
+# --- TEAM SELECTION ---
 nrl_teams = [
     "Brisbane Broncos", "Canberra Raiders", "Canterbury Bulldogs", "Cronulla Sharks",
     "Dolphins", "Gold Coast Titans", "Manly Sea Eagles", "Melbourne Storm",
@@ -15,31 +51,10 @@ nrl_teams = [
     "Parramatta Eels", "Penrith Panthers", "South Sydney Rabbitohs",
     "St George Illawarra Dragons", "Sydney Roosters", "Wests Tigers"
 ]
-
-# Background Image Styling
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-image: url("logo1.png");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        color: white;
-    }
-    h1, h2, h3, h4, h5, h6, p, label, div {
-        color: white !important;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
-
-st.title("NRL Match Predictor | Mango Mine Case")
-st.caption("Powered by professional insights, tipster opinions, fan sentiment & AI.")
-
 team1 = st.selectbox("Choose Team 1", nrl_teams)
-team2 = st.selectbox("Choose Team 2", [team for team in nrl_teams if team != team1])
+team2 = st.selectbox("Choose Team 2", [t for t in nrl_teams if t != team1])
 
+# --- PREDICTION LOGIC ---
 def fetch_prediction_reason(team1, team2):
     query = f"NRL {team1} vs {team2} expert prediction analysis"
     url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={CSE_ID}&q={query}&num=5"
@@ -48,12 +63,13 @@ def fetch_prediction_reason(team1, team2):
         res = requests.get(url)
         res.raise_for_status()
         data = res.json()
-
         snippets = " ".join(item.get("snippet", "") for item in data.get("items", []))
-        reason = re.findall(r"(.*?)\.", snippets)[0:2]
-        return " ".join(reason) if reason else "Expert tips suggest a close game based on recent performance."
+        reason_sentences = re.findall(r"([A-Z][^.!?]*[.!?])", snippets)
+        # Join first two meaningful sentences or fallback
+        reason = " ".join(reason_sentences[:2]) if reason_sentences else "Based on expert previews and public analysis."
+        return reason
     except Exception as e:
-        return "Expert predictions unavailable. Using AI fallback logic."
+        return "Using fallback insights due to API restrictions or no results found."
 
 def get_prediction(team1, team2):
     win_chance_team1 = random.uniform(45, 70)
@@ -77,10 +93,15 @@ def get_prediction(team1, team2):
     reason = fetch_prediction_reason(team1, team2)
     return winner, round(win_chance_team1, 1), round(win_chance_team2, 1), margin_range, reason
 
+# --- PREDICT BUTTON ---
 if st.button("Predict Winner"):
     winner, chance1, chance2, margin_range, reason = get_prediction(team1, team2)
 
-    st.markdown(f"### Predicted Winner: {winner}")
-    st.markdown(f"**Winning chance:** {team1} {chance1}% – {team2} {chance2}%")
-    st.markdown(f"**Predicted points margin range:** {margin_range}")
-    st.markdown(f"**Why?** {reason}")
+    st.markdown(f"""
+    <div style="background-color: rgba(255, 215, 0, 0.2); padding: 1em; border-radius: 10px;">
+        <h3>🏆 Predicted Winner: <span style='color:#FFD700'>{winner}</span></h3>
+        <p><strong>Winning chance:</strong> {team1} {chance1}% vs {team2} {chance2}%</p>
+        <p><strong>Predicted Margin Range:</strong> {margin_range} points</p>
+        <p><strong>Why?</strong> {reason}</p>
+    </div>
+    """, unsafe_allow_html=True)
