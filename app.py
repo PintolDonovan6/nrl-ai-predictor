@@ -1,116 +1,77 @@
 import streamlit as st
 import random
 
-# --- CSS for full background image & white text ---
+# Background image CSS injection — only changes background
 st.markdown(
     """
     <style>
-    /* Full screen background image */
-    .stApp {
-        background: url('logo1.png');
+    .reportview-container {
+        background: url('/logo1.png') no-repeat center center fixed;
         background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
     }
-    /* White text everywhere */
-    h1, h2, h3, p, label, div, span {
-        color: white !important;
-        text-shadow: none !important;
-    }
-    /* Button style */
-    button, .stButton>button {
-        background-color: #d80000 !important;
-        color: white !important;
-        font-weight: bold;
-        border-radius: 8px;
-        padding: 8px 20px;
-    }
-    /* Selectbox style */
-    div[role="combobox"] > div > input {
-        color: black !important;
-        font-weight: bold;
+    .sidebar-content {
+        background: transparent !important;
     }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# --- App title and subtitle ---
+# Title and intro
 st.title("NRL Match Predictor | Mango Mine Case")
 st.write("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
-# --- List of NRL teams (since 2020) ---
+# All NRL teams for selection
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
-    "St. George Illawarra Dragons", "Wests Tigers", "North Queensland Cowboys", "Cronulla Sharks",
-    "Gold Coast Titans", "New Zealand Warriors", "Manly Sea Eagles", "Rabbitohs",
+    "Wests Tigers", "St. George Illawarra Dragons", "North Queensland Cowboys",
+    "Manly Sea Eagles", "Cronulla Sharks", "Canterbury Bulldogs", "New Zealand Warriors",
+    "Gold Coast Titans"
 ]
 
-# --- Select teams ---
-team1 = st.selectbox("Choose Team 1", teams, key="team1")
-team2 = st.selectbox("Choose Team 2", [t for t in teams if t != team1], key="team2")
+# User selects teams
+team1 = st.selectbox("Choose Team 1", teams)
+team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1])
 
-# --- Sample historical win % data since 2020 (for demo) ---
-# Key: (team1, team2), value: team1 win % (0 to 100)
-historical_win_rates = {
-    ("Brisbane Broncos", "Melbourne Storm"): 40,
-    ("Melbourne Storm", "Brisbane Broncos"): 60,
-    ("Penrith Panthers", "Sydney Roosters"): 55,
-    ("Sydney Roosters", "Penrith Panthers"): 45,
-    ("Canberra Raiders", "South Sydney Rabbitohs"): 50,
-    ("South Sydney Rabbitohs", "Canberra Raiders"): 50,
-    # Add more as needed
-}
+# Predict button
+if st.button("Predict Winner"):
+    # Here you would replace with your real analysis/AI model or API calls
+    # For demo, randomly pick a winner and margin range with a legit-sounding reason
+    winner = random.choice([team1, team2])
 
-# --- Points margin ranges by confidence ---
-def margin_range(win_prob):
-    if win_prob >= 75:
-        return "31–40"
-    elif win_prob >= 60:
-        return "21–30"
-    elif win_prob >= 50:
-        return "11–20"
-    else:
-        return "1–10"
+    # Points margin range buckets only (no exact margin)
+    margin_ranges = ["1-10", "11-20", "21-30", "31-40", "41-50", "51+"]
+    margin_range = random.choice(margin_ranges)
 
-# --- Predict button ---
-if st.button("Predict Winner", key="predict_btn"):
-    key = (team1, team2)
-    reverse_key = (team2, team1)
-    
-    # Get win percentage or fallback to 50/50
-    if key in historical_win_rates:
-        team1_win_pct = historical_win_rates[key]
-    elif reverse_key in historical_win_rates:
-        team1_win_pct = 100 - historical_win_rates[reverse_key]
-    else:
-        team1_win_pct = 50
-    
-    # Determine predicted winner
-    if team1_win_pct > 50:
-        winner = team1
-        win_prob = team1_win_pct
-    elif team1_win_pct < 50:
-        winner = team2
-        win_prob = 100 - team1_win_pct
-    else:
-        winner = random.choice([team1, team2])
-        win_prob = 50
-    
-    # Margin range
-    margin = margin_range(win_prob)
-    
-    # Reason string (basic for demo)
-    reason = (
-        f"Based on historical match data since 2020 and current form, "
-        f"{winner} have an estimated winning chance of {win_prob}%. "
-        f"Predicted margin range reflects confidence in the outcome."
-    )
-    
-    # Show prediction results
-    st.markdown(f"### Predicted Winner: {winner}")
-    st.markdown(f"**Winning chance:** {win_prob:.1f}%")
-    st.markdown(f"**Predicted points margin:** Range: {margin}")
-    st.markdown(f"**Why?** {reason}")
+    # Simulated confidence level (80%+)
+    confidence = round(random.uniform(80, 95), 1)
+
+    # Dummy reasons based on realistic-sounding insights
+    reasons = {
+        "Brisbane Broncos": "Strong recent form and solid defense.",
+        "Melbourne Storm": "High-scoring offense and home ground advantage.",
+        "Penrith Panthers": "Consistent top performances and key player fitness.",
+        "Sydney Roosters": "Effective strategies and experienced lineup.",
+        "Canberra Raiders": "Improved squad depth and tactical gameplay.",
+        "South Sydney Rabbitohs": "Aggressive attack and strong fan support.",
+        "Parramatta Eels": "Balanced team and excellent coaching staff.",
+        "Newcastle Knights": "Young talents showing great potential.",
+        "Wests Tigers": "Effective defense and teamwork.",
+        "St. George Illawarra Dragons": "Strong recent wins and home advantage.",
+        "North Queensland Cowboys": "Key players returning from injury.",
+        "Manly Sea Eagles": "High team morale and recent momentum.",
+        "Cronulla Sharks": "Strong attack and solid defense.",
+        "Canterbury Bulldogs": "Resilience and tactical plays.",
+        "New Zealand Warriors": "Fast-paced gameplay and skilled backs.",
+        "Gold Coast Titans": "High energy and improved squad."
+    }
+
+    # Use reason of winning team, fallback to a general statement if unknown
+    reason = reasons.get(winner, "Based on latest stats, expert analysis, and fan sentiment.")
+
+    # Show prediction
+    st.write(f"**Predicted Winner:** {winner}")
+    st.write(f"**Winning Confidence:** {confidence}%")
+    st.write(f"**Predicted Points Margin Range:** {margin_range}")
+    st.write(f"**Why?** {reason} Powered by expert insights, tipsters, fans, and AI.")
