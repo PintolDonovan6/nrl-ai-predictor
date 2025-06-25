@@ -3,6 +3,7 @@ import streamlit as st
 # Meta tags for Google verification & SEO (must be at the very top)
 st.markdown("""
 <head>
+<meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw" />
 <meta name="description" content="NRL Match Predictor powered by AI and historical stats.">
 <meta name="keywords" content="NRL, Rugby League, Prediction, AI, Sports, Australia">
 <meta name="author" content="Your Name or Team">
