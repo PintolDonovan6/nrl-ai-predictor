@@ -1,5 +1,22 @@
 import streamlit as st
 
+# Meta tags for SEO and social sharing
+st.markdown(
+    """
+    <head>
+        <title>NRL Match Predictor | Mango Mine Case</title>
+        <meta name="description" content="Predict NRL match outcomes with AI, expert analysis, and PNG passion. Try Mango Mine Case's NRL Predictor now." />
+        <meta name="keywords" content="NRL, AI Prediction, Rugby League, Mango Mine Case, PNG, Match Tips, Sports Predictor" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="NRL Match Predictor | Mango Mine Case" />
+        <meta property="og:description" content="Powered by historical stats, team strength, and expert logic." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://nrl-ai-predictorgit-r9mpbscpqjawefnqcrpvje.streamlit.app/" />
+    </head>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 
 st.markdown(
