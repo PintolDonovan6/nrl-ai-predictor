@@ -1,5 +1,39 @@
 import streamlit as st
 
+# Set page config to wide and title
+st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
+
+# Inject custom CSS for dark orange background and styling
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #8B4000;  /* Dark Orange */
+        color: #fff !important;     /* White text */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    h1, h2, h3, h4 {
+        color: #FFD700 !important;  /* Gold headings */
+    }
+    .stButton>button {
+        background-color: #FFD700 !important; /* Gold buttons */
+        color: #8B4000 !important;             /* Dark orange text on buttons */
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        padding: 8px 16px;
+    }
+    select, .stSelectbox > div {
+        background-color: #B35800 !important; /* Lighter dark orange */
+        color: #fff !important;
+        border: 1px solid #FFD700 !important; /* Gold border */
+        border-radius: 6px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # List of all NRL teams
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
