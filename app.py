@@ -1,4 +1,52 @@
 import streamlit as st
+
+# Inject custom CSS for background and font color
+st.markdown(
+    """
+    <style>
+    /* Set background image for the whole app */
+    .stApp {
+        background-image: url('logo1.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        /* Add a subtle dark overlay for readability */
+        position: relative;
+        z-index: 0;
+    }
+    /* Overlay with dark semi-transparent layer */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* adjust transparency */
+        z-index: -1;
+    }
+
+    /* Make all text white */
+    .css-1d391kg, .css-1v3fvcr, .css-ffhzg2 {
+        color: white !important;
+    }
+
+    /* Also white for headings */
+    h1, h2, h3, h4, h5, h6, label, p, div, span {
+        color: white !important;
+    }
+
+    /* Style buttons for better visibility */
+    button, .stButton>button {
+        background-color: #d80000 !important;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+import streamlit as st
 import requests
 import random
 import re
