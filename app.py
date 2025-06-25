@@ -1,6 +1,4 @@
 import streamlit as st
-import streamlit as st
-
 st.markdown("""
 <head>
 <meta name="description" content="NRL Match Predictor powered by AI and historical stats.">
