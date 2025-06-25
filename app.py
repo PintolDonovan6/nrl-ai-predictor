@@ -1,4 +1,51 @@
 import streamlit as st
+import streamlit as st
+
+# Paste this CSS right here — at the top, after imports
+st.markdown(
+    """
+    <style>
+    /* Full background image */
+    .reportview-container, .main, .block-container {
+        background: url('logo1.png') no-repeat center center fixed;
+        background-size: cover;
+        color: #ffd700 !important; /* gold text */
+    }
+
+    /* Headings in red */
+    h1, h2, h3, h4, h5, h6 {
+        color: #d80000 !important;
+    }
+
+    /* Sidebar text */
+    .sidebar-content {
+        color: #ffd700 !important;
+    }
+
+    /* Buttons */
+    button, .stButton > button {
+        background-color: #d80000 !important; /* red background */
+        color: #ffd700 !important; /* gold text */
+        font-weight: bold;
+        border: 2px solid #000000; /* black border */
+    }
+
+    /* Inputs and selects */
+    div[role="listbox"], .stTextInput > div > input {
+        background-color: rgba(216, 0, 0, 0.1) !important;
+        color: #000000 !important;
+        border: 1px solid #d80000 !important;
+        border-radius: 5px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Your existing Streamlit UI code comes here
+st.title("NRL Match Predictor | Mango Mine Case")
+# ... rest of your app
+
 st.markdown(
     """
     <style>
