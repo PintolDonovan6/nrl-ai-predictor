@@ -1,22 +1,13 @@
 import streamlit as st
 import random
 
-# --- CSS for background image and PNG colors ---
+# --- CSS for black background and PNG colors ---
 st.markdown(
     """
     <style>
-    /* Full page background image */
+    /* Full page black background */
     .stApp {
-        background: url('logo1.png') no-repeat center center fixed;
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
-    /* Text colors */
-    .stApp, .css-18e3th9, .css-1d391kg, .css-1v3fvcr, .css-1v0mbdj, .css-1gkcyyc {
+        background-color: #000000;
         color: #ffd700 !important;  /* Gold text */
     }
 
@@ -36,8 +27,8 @@ st.markdown(
 
     /* Inputs */
     input, select, textarea {
-        background-color: rgba(216, 0, 0, 0.1) !important;
-        color: #000000 !important;
+        background-color: #1a1a1a !important;
+        color: #ffd700 !important;
         border: 1px solid #d80000 !important;
         border-radius: 5px;
     }
@@ -46,7 +37,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- NRL Teams list ---
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
@@ -64,20 +54,16 @@ if team1 == team2:
     st.error("Please select two different teams.")
 else:
     if st.button("Predict Winner"):
-        # Dummy but realistic prediction logic (replace with real data fetch if you want)
-        # Simulate weighted chance based on some fake stats:
         team1_chance = random.uniform(40, 60)
         team2_chance = 100 - team1_chance
 
         winner = team1 if team1_chance > team2_chance else team2
         win_chance = max(team1_chance, team2_chance)
 
-        # Margin ranges
         margin_ranges = ["1–10", "11–20", "21–30", "31–40", "41–50", "51+"]
         margin_probs = [40, 25, 15, 10, 7, 3]
         margin = random.choices(margin_ranges, weights=margin_probs, k=1)[0]
 
-        # Fake "reasoning" based on stats and history
         reasons = [
             f"{winner} have consistently outperformed their opponents in recent matches.",
             f"Based on recent form and key player availability, {winner} have the edge.",
