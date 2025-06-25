@@ -1,66 +1,76 @@
 import streamlit as st
+import random
 
-# Inject CSS for background image and styles
+# Inject CSS for background image and styling
 st.markdown(
     """
     <style>
-    /* Set the background image using your uploaded logo1.png */
+    /* Full page background image */
     .stApp {
-        background-image: url('logo1.png');
+        background: url("logo1.png") no-repeat center center fixed;
         background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        position: relative;
-        z-index: 0;
     }
 
-    /* Light transparent overlay to improve text readability */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(0, 0, 0, 0.15); /* adjust opacity as needed */
-        z-index: -1;
+    /* Remove any background colors */
+    body, .main, .block-container {
+        background-color: transparent !important;
     }
 
-    /* White font color for all text */
-    h1, h2, h3, h4, h5, h6, label, p, div, span {
+    /* Make all text white */
+    h1, h2, h3, p, label, div, span {
         color: white !important;
-        text-shadow: 0 0 4px rgba(0,0,0,0.7); /* subtle text shadow for clarity */
     }
 
-    /* Style buttons */
+    /* Style buttons with PNG red and white text */
     button, .stButton>button {
         background-color: #d80000 !important;
         color: white !important;
-        font-weight: bold;
-        border-radius: 5px;
+        font-weight: bold !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# Your app UI (example teams)
+# Title and subtitle
 st.title("NRL Match Predictor | Mango Mine Case")
+st.write("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
+# List of NRL teams (example list)
 teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers",
-    "Sydney Roosters", "Canberra Raiders", "South Sydney Rabbitohs",
-    "Parramatta Eels", "Newcastle Knights"
+    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
+    "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
+    "Cronulla Sharks", "St George Illawarra Dragons", "Wests Tigers", "Manly Sea Eagles",
+    "Canterbury Bulldogs", "Gold Coast Titans", "New Zealand Warriors", "North Queensland Cowboys"
 ]
 
-team1 = st.selectbox("Choose Team 1", teams, key="team1")
-team2 = st.selectbox("Choose Team 2", teams, key="team2")
+# Team selection
+team1 = st.selectbox("Choose Team 1", teams)
+team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1])
 
+# Prediction button
 if st.button("Predict Winner"):
-    # Example dummy prediction logic - replace with real AI/data later
-    import random
+    # Dummy prediction logic - replace with your real model/data integration
     winner = random.choice([team1, team2])
-    margin_range = random.choice(["1-10", "11-20", "21-30", "31-40", "41-50", "51+"])
-    reason = f"Based on professional insights, tipster opinions, fan sentiment, and AI."
+    # Predicted margin range buckets only (no exact number)
+    margin = random.randint(1, 60)
+    if margin <= 10:
+        margin_range = "1–10"
+    elif margin <= 20:
+        margin_range = "11–20"
+    elif margin <= 30:
+        margin_range = "21–30"
+    elif margin <= 40:
+        margin_range = "31–40"
+    elif margin <= 50:
+        margin_range = "41–50"
+    else:
+        margin_range = "51+"
 
-    st.markdown(f"### Predicted winner: {winner}")
+    # Reason - placeholder text (replace with your web analysis logic)
+    reason = f"Based on latest online expert tips, fan opinions, and performance stats."
+
+    # Output prediction
+    st.markdown(f"### Predicted Winner: {winner}")
     st.markdown(f"**Predicted points margin:** Range: {margin_range}")
     st.markdown(f"**Why?** {reason}")
