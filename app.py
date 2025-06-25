@@ -1,28 +1,15 @@
 import streamlit as st
 
-# ✅ Google Search Console meta tag for verification (must go early)
+# Google Search Console meta tag and SEO meta tags — add at the very top before anything else
 st.markdown("""
     <meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw">
+    <meta name="description" content="NRL Match Predictor powered by AI and historical stats.">
+    <meta name="keywords" content="NRL, Rugby League, Prediction, AI, Sports, Australia">
+    <meta name="author" content="Mango Mine Case Team">
+    <title>NRL Match Predictor | Mango Mine Case</title>
 """, unsafe_allow_html=True)
 
-# ✅ Set page title
-st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
-
-import streamlit as st
-import streamlit as st
-
-# Meta tags including Google site verification
-st.markdown("""
-<head>
-<meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw" />
-<meta name="description" content="NRL Match Predictor powered by AI and historical stats.">
-<meta name="keywords" content="NRL, Rugby League, Prediction, AI, Sports, Australia">
-<meta name="author" content="Your Name or Team">
-<title>NRL Match Predictor | Mango Mine Case</title>
-</head>
-""", unsafe_allow_html=True)
-
-# Page config
+# Set page config once only
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 
 # CSS Styling
@@ -199,7 +186,6 @@ def predict_winner(team1, team2):
             reason = "Teams are evenly matched based on overall strength ratings."
 
     return winner, winning_chance, losing_team, losing_chance, margin, reason
-
 
 # Streamlit UI
 
