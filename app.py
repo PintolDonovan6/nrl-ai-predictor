@@ -1,4 +1,5 @@
 import streamlit as st
+<meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw" />
 
 # Page config
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
