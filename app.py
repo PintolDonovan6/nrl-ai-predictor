@@ -1,4 +1,34 @@
 import streamlit as st
+
+st.markdown(
+    """
+    <style>
+    /* Main page background */
+    .stApp {
+        background-color: black !important;
+        color: #ffd700 !important; /* Gold text */
+    }
+
+    /* Sidebar background */
+    [data-testid="stSidebar"] {
+        background-color: black !important;
+        color: #ffd700 !important;
+    }
+
+    /* Make selectboxes and buttons match colors */
+    .stSelectbox > div, .stButton > button {
+        background-color: #d80000 !important; /* Red */
+        color: #ffd700 !important; /* Gold */
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+import streamlit as st
 import requests
 
 # Your Google Custom Search API credentials - replace with your actual keys
