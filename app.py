@@ -1,4 +1,14 @@
 import streamlit as st
+
+# ✅ Google Search Console meta tag for verification (must go early)
+st.markdown("""
+    <meta name="google-site-verification" content="pLrVe8n9tv3vUYdzPnZ7kb5NZJAqH9zE39hIOcq84Nw">
+""", unsafe_allow_html=True)
+
+# ✅ Set page title
+st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
+
+import streamlit as st
 import streamlit as st
 
 # Meta tags including Google site verification
