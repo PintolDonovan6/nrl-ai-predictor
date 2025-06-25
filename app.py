@@ -1,10 +1,11 @@
 import streamlit as st
+
+# Add SEO meta tags to help search engines index your app better
 st.markdown("""
     <meta name="description" content="NRL Match Predictor - Powered by historical stats and expert analysis for accurate rugby league predictions.">
     <meta name="keywords" content="NRL, Rugby League, Sports Prediction, AI Prediction, Rugby Analysis">
     <meta name="author" content="Mango Mine Case Team">
 """, unsafe_allow_html=True)
-
 
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 
