@@ -1,22 +1,5 @@
 import streamlit as st
 
-# Meta tags for SEO and social sharing
-st.markdown(
-    """
-    <head>
-        <title>NRL Match Predictor | Mango Mine Case</title>
-        <meta name="description" content="Predict NRL match outcomes with AI, expert analysis, and PNG passion. Try Mango Mine Case's NRL Predictor now." />
-        <meta name="keywords" content="NRL, AI Prediction, Rugby League, Mango Mine Case, PNG, Match Tips, Sports Predictor" />
-        <meta name="robots" content="index, follow" />
-        <meta property="og:title" content="NRL Match Predictor | Mango Mine Case" />
-        <meta property="og:description" content="Powered by historical stats, team strength, and expert logic." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://nrl-ai-predictorgit-r9mpbscpqjawefnqcrpvje.streamlit.app/" />
-    </head>
-    """,
-    unsafe_allow_html=True,
-)
-
 st.set_page_config(page_title="NRL Match Predictor | Mango Mine Case", layout="centered")
 
 st.markdown(
@@ -96,6 +79,30 @@ team_strength = {
     "North Queensland Cowboys": 77,
 }
 
+def calculate_margin_by_chance(winning_chance):
+    if winning_chance >= 85:
+        return "21–30"
+    elif winning_chance >= 70:
+        return "16–20"
+    elif winning_chance >= 60:
+        return "11–15"
+    elif winning_chance >= 50:
+        return "6–10"
+    else:
+        return "1–5"
+
+def calculate_margin_by_strength_diff(strength_diff):
+    if strength_diff >= 20:
+        return "21–30"
+    elif strength_diff >= 10:
+        return "16–20"
+    elif strength_diff >= 5:
+        return "11–15"
+    elif strength_diff >= 2:
+        return "6–10"
+    else:
+        return "1–5"
+
 def predict_winner(team1, team2):
     if team1 == team2:
         return None, None, None, None, None, "Select two different teams."
@@ -120,12 +127,7 @@ def predict_winner(team1, team2):
             losing_team = None
             losing_chance = 50
 
-        if winning_chance >= 80:
-            margin = "21–30"
-        elif winning_chance >= 60:
-            margin = "11–20"
-        else:
-            margin = "1–10"
+        margin = calculate_margin_by_chance(winning_chance)
 
         if winner:
             reason = (f"Based on historical head-to-head data since 2020, "
@@ -163,12 +165,8 @@ def predict_winner(team1, team2):
             losing_team = None
             losing_chance = 50
 
-        if winning_chance >= 80:
-            margin = "21–30"
-        elif winning_chance >= 60:
-            margin = "11–20"
-        else:
-            margin = "1–10"
+        strength_diff = abs(strength1 - strength2)
+        margin = calculate_margin_by_strength_diff(strength_diff)
 
         if winner:
             reason = (f"No head-to-head data found. Based on overall team strength ratings, "
