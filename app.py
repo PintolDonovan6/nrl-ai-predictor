@@ -1,37 +1,7 @@
 import streamlit as st
-
-st.markdown(
-    """
-    <style>
-    /* Main page background */
-    .stApp {
-        background-color: black !important;
-        color: #ffd700 !important; /* Gold text */
-    }
-
-    /* Sidebar background */
-    [data-testid="stSidebar"] {
-        background-color: black !important;
-        color: #ffd700 !important;
-    }
-
-    /* Make selectboxes and buttons match colors */
-    .stSelectbox > div, .stButton > button {
-        background-color: #d80000 !important; /* Red */
-        color: #ffd700 !important; /* Gold */
-        font-weight: bold;
-        border-radius: 8px;
-        border: none;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-import streamlit as st
 import requests
 
-# Your Google Custom Search API credentials - replace with your actual keys
+# Your Google Custom Search API credentials
 API_KEY = "AIzaSyCNdyDKJSuRPApupwZEMQX4lnuGRm5YdXU"
 CSE_ID = "b10cae8aa7f2249bb"
 
@@ -42,28 +12,43 @@ teams = [
     "Manly Sea Eagles", "New Zealand Warriors", "North Queensland Cowboys"
 ]
 
-# CSS Styling for black background and PNG colors
+# Inject CSS styles
 st.markdown("""
     <style>
+    /* Main page background and text colors */
     .stApp {
-        background-color: #000000;
-        color: #ffd700 !important; /* Gold */
+        background-color: #000000 !important;
+        color: #ffd700 !important;  /* Gold */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    /* Headings in red */
     h1, h2, h3, h4 {
         color: #d80000 !important; /* Red */
     }
-    button, .stButton>button {
-        background-color: #d80000 !important;
-        color: #ffd700 !important;
+
+    /* Style buttons */
+    button, .stButton > button {
+        background-color: #d80000 !important; /* Red */
+        color: #ffd700 !important; /* Gold */
         font-weight: bold;
         border-radius: 8px;
+        border: none;
     }
+
+    /* Style select boxes */
     select, .stSelectbox > div {
         background-color: #1a1a1a !important;
-        color: #ffd700 !important;
+        color: #ffd700 !important; /* Gold text */
         border: 1px solid #d80000 !important;
         border-radius: 6px;
+    }
+
+    /* Change label color for dropdown labels */
+    label[for^="selectbox"] {
+        color: white !important;
+        font-weight: bold;
+        font-size: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -71,7 +56,6 @@ st.markdown("""
 st.title("NRL Match Predictor | Mango Mine Case")
 st.write("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
-# Team selectors
 team1 = st.selectbox("Choose Team 1", teams, index=0)
 team2 = st.selectbox("Choose Team 2", teams, index=1)
 
@@ -92,10 +76,7 @@ else:
                 response = requests.get(url, params=params)
                 response.raise_for_status()
                 data = response.json()
-                snippets = []
-                for item in data.get("items", []):
-                    snippet = item.get("snippet", "")
-                    snippets.append(snippet)
+                snippets = [item.get("snippet", "") for item in data.get("items", [])]
 
                 if not snippets:
                     st.warning("No expert tips found for this matchup. Showing fallback prediction.")
@@ -104,7 +85,7 @@ else:
                     margin = "11–20"
                     reason = f"No online expert tips found. {team1} is chosen by fallback logic."
                 else:
-                    # Count mentions (simple heuristic)
+                    # Simple heuristic: count mentions of each team in snippets
                     team1_mentions = sum(s.lower().count(team1.lower()) for s in snippets)
                     team2_mentions = sum(s.lower().count(team2.lower()) for s in snippets)
 
@@ -119,7 +100,7 @@ else:
                         winning_chance = 55
 
                     margin = "21–30" if winning_chance > 70 else "11–20"
-                    reason = " ".join(snippets[:3])  # show first 3 snippets as explanation
+                    reason = " ".join(snippets[:3])  # Show first 3 snippets as reasoning
 
                 losing_team = team2 if winner == team1 else team1
                 losing_chance = 100 - winning_chance
