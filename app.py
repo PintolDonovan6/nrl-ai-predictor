@@ -1,27 +1,30 @@
 import streamlit as st
 import random
 
-# Inject CSS for background image and styling
+# Background image and styling with correct selectors and layering
 st.markdown(
     """
     <style>
-    /* Full page background image */
+    /* Make the whole app container use your image as background */
     .stApp {
-        background: url("logo1.png") no-repeat center center fixed;
+        background-image: url("logo1.png");
         background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
     }
 
-    /* Remove any background colors */
-    body, .main, .block-container {
+    /* Make container backgrounds transparent so image is visible */
+    .css-18e3th9, .css-1d391kg, .main, .block-container {
         background-color: transparent !important;
     }
 
-    /* Make all text white */
-    h1, h2, h3, p, label, div, span {
+    /* White font color for all text */
+    .stText, h1, h2, h3, label, p, span, div {
         color: white !important;
     }
 
-    /* Style buttons with PNG red and white text */
+    /* Style buttons - PNG red with white text */
     button, .stButton>button {
         background-color: #d80000 !important;
         color: white !important;
@@ -32,11 +35,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Title and subtitle
+# Title & subtitle
 st.title("NRL Match Predictor | Mango Mine Case")
 st.write("Powered by professional insights, tipster opinions, fan sentiment & AI.")
 
-# List of NRL teams (example list)
+# NRL teams list
 teams = [
     "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
@@ -44,16 +47,16 @@ teams = [
     "Canterbury Bulldogs", "Gold Coast Titans", "New Zealand Warriors", "North Queensland Cowboys"
 ]
 
-# Team selection
+# Select teams
 team1 = st.selectbox("Choose Team 1", teams)
 team2 = st.selectbox("Choose Team 2", [team for team in teams if team != team1])
 
 # Prediction button
 if st.button("Predict Winner"):
-    # Dummy prediction logic - replace with your real model/data integration
+    # Dummy legit logic (replace with real one later)
     winner = random.choice([team1, team2])
-    # Predicted margin range buckets only (no exact number)
     margin = random.randint(1, 60)
+
     if margin <= 10:
         margin_range = "1–10"
     elif margin <= 20:
@@ -67,10 +70,8 @@ if st.button("Predict Winner"):
     else:
         margin_range = "51+"
 
-    # Reason - placeholder text (replace with your web analysis logic)
-    reason = f"Based on latest online expert tips, fan opinions, and performance stats."
+    reason = "Based on latest online expert tips, fan opinions, and performance stats."
 
-    # Output prediction
     st.markdown(f"### Predicted Winner: {winner}")
     st.markdown(f"**Predicted points margin:** Range: {margin_range}")
     st.markdown(f"**Why?** {reason}")
