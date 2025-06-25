@@ -1,3 +1,20 @@
+st.markdown(
+    """
+    <style>
+    /* Full page background image */
+    .reportview-container, .main, .block-container {
+        background: url('/logo1.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+    /* Remove default background colors */
+    .css-1d391kg, .css-1d391kg > div {
+        background: transparent !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 import streamlit as st
 import random
 
