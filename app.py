@@ -1,5 +1,51 @@
 import streamlit as st
 import streamlit as st
+import streamlit as st
+
+# CSS for full background image + PNG colors
+st.markdown(
+    """
+    <style>
+    /* Set the full page background image */
+    .stApp {
+        background: url('logo1.png') no-repeat center center fixed;
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    /* Text colors */
+    .stApp, .css-18e3th9, .css-1d391kg, .css-1v3fvcr, .css-1v0mbdj, .css-1gkcyyc {
+        color: #ffd700 !important;  /* Gold text */
+    }
+
+    /* Headings red */
+    h1, h2, h3, h4, h5, h6 {
+        color: #d80000 !important;  /* Red */
+    }
+
+    /* Buttons */
+    button, .stButton > button {
+        background-color: #d80000 !important;
+        color: #ffd700 !important;
+        font-weight: bold;
+        border: 2px solid #000000;
+    }
+
+    /* Inputs */
+    input, select, textarea {
+        background-color: rgba(216, 0, 0, 0.1) !important;
+        color: #000000 !important;
+        border: 1px solid #d80000 !important;
+        border-radius: 5px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Paste this CSS right here — at the top, after imports
 st.markdown(
