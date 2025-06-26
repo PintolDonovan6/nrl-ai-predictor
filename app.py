@@ -65,7 +65,7 @@ head_to_head = {
     ("Cronulla Sharks", "St. George Illawarra Dragons"): 58,
     ("St. George Illawarra Dragons", "Cronulla Sharks"): 42,
     ("Manly Sea Eagles", "New Zealand Warriors"): 62,
-     ("Canterbury bulldogs", "Penrith Panthers"): 62,
+     ("Canterbury bulldogs", "Penrith Panthers"): 58,
     ("New Zealand Warriors", "Manly Sea Eagles"): 38,
     ("North Queensland Cowboys", "Brisbane Broncos"): 55,
     ("Brisbane Broncos", "North Queensland Cowboys"): 45,
@@ -93,8 +93,8 @@ team_strength = {
 }
 
 def calculate_margin_by_chance(winning_chance):
-    if winning_chance >= 85:
-        return "21–30"
+    if winning_chance >= 58:
+        return "1–10"
     elif winning_chance >= 70:
         return "16–20"
     elif winning_chance >= 60:
