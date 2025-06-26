@@ -44,7 +44,7 @@ st.markdown(
 )
 
 teams = [
-    "Brisbane Broncos", "Melbourne Storm", "Penrith Panthers", "Sydney Roosters",
+    "Brisbane Broncos", "Melbourne Storm", "Canterbury bulldogs", "Penrith Panthers", "Sydney Roosters",
     "Canberra Raiders", "South Sydney Rabbitohs", "Parramatta Eels", "Newcastle Knights",
     "Gold Coast Titans", "Wests Tigers", "Cronulla Sharks", "St. George Illawarra Dragons",
     "Manly Sea Eagles", "New Zealand Warriors", "North Queensland Cowboys"
@@ -65,6 +65,7 @@ head_to_head = {
     ("Cronulla Sharks", "St. George Illawarra Dragons"): 58,
     ("St. George Illawarra Dragons", "Cronulla Sharks"): 42,
     ("Manly Sea Eagles", "New Zealand Warriors"): 62,
+     ("Canterbury bulldogs", "Penrith Panthers"): 62,
     ("New Zealand Warriors", "Manly Sea Eagles"): 38,
     ("North Queensland Cowboys", "Brisbane Broncos"): 55,
     ("Brisbane Broncos", "North Queensland Cowboys"): 45,
@@ -74,6 +75,7 @@ head_to_head = {
 # Team strength rating (0-100 scale, higher is stronger)
 team_strength = {
     "Brisbane Broncos": 72,
+    "Canterbury bulldogs": 82,
     "Melbourne Storm": 88,
     "Penrith Panthers": 90,
     "Sydney Roosters": 85,
